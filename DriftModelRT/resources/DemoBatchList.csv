@@ -1,0 +1,21 @@
+Label,Depth,Velocity,,
+1,11,30,,Column A is an arbitrary index number (or text label) of the point to be processed
+2,64,8,,Column B is the depth at that point (cm)
+3,76,89,,Column C is the velocity at that point (cm/s)
+4,123,8,,Columns to the right of C are ignored
+5,78,72,,
+6,162,2,,
+7,36,60,,
+8,137,34,,
+9,115,93,,
+10,60,67,,
+11,158,91,,
+12,101,79,,
+13,124,30,,
+14,147,79,,
+15,172,2,,
+16,50,99,,
+17,129,92,,
+18,160,16,,
+19,185,8,,
+20,135,17,,
