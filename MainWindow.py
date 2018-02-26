@@ -14,7 +14,7 @@ from PyQt5.QtGui import QDoubleValidator, QIntValidator
 from DriftModelRT.DriftForager import DriftForager
 from DriftModelRT.PreyType import PreyType
 from ModelSetResult import ModelSetResult
-from os.path import expanduser
+import os
 import csv
 import pickle
 
@@ -31,9 +31,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setDefaults()
         # Tell buttons what should happen when they're clicked
         self.btnDriftDensityFile.clicked.connect(lambda: self.chooseFile('drift density'))
-        self.btnDepthVelocityFile.clicked.connect(lambda: self.chooseFile('depth velocity'))
-        self.btnRunModel.clicked.connect(self.runModel)   
-        self.btnRunModelOnBatch.clicked.connect(self.runBatch)
+        self.btnBatchMethod1File.clicked.connect(lambda: self.chooseFile('batch method 1'))
+        self.btnBatchMethod2File.clicked.connect(lambda: self.chooseFile('batch method 2'))
+        self.btnRunModel.clicked.connect(self.runModel)
+        self.btnRunModelOnBatchMethod1.clicked.connect(self.runBatchMethod1)
+        self.btnRunModelOnBatchMethod2.clicked.connect(self.runBatchMethod2)
         self.btnShowDefaultCurves.clicked.connect(self.showDefaultCurves)
         self.hsDepthForVelocityPlot.valueChanged.connect(lambda: self.plotSliceSliderChanged('depth'))
         self.hsVelocityForDepthPlot.valueChanged.connect(lambda: self.plotSliceSliderChanged('velocity'))
@@ -68,14 +70,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.leReactionDistanceMultiplier.setValidator(QDoubleValidator(0.01, 1.0, 2, self.leReactionDistanceMultiplier))
         # Tell the response variable picker to check for changes
         self.cbResponseVariableToPlot.currentIndexChanged.connect(self.showPlots)
+        # Set up variable to track if there's an active forager configured
+        self.foragerIsConfigured = False
         
     def setDefaults(self):
         """ Gives all the options default values for when the program is loaded without opening a previous file. """
         self.leMaxWaterVelocity.setText("70")
         self.leMaxDepth.setText("80")
         self.leTurbidity.setText("0.0")
-        self.leDriftDensityFile.setText(pkg_resources.resource_filename(__name__, 'DriftModelRT/resources/DemoPreyTypes.csv'))
-        self.leDepthVelocityFile.setText(pkg_resources.resource_filename(__name__, 'DriftModelRT/resources/DemoBatchList.csv'))
+        self.leDriftDensityFile.setText(pkg_resources.resource_filename(__name__, 'DriftModelRT/resources/DemoPreyTypes1.csv'))
+        self.leBatchMethod1File.setText(pkg_resources.resource_filename(__name__, 'DriftModelRT/resources/DemoBatchListMethod1.csv'))
+        self.leBatchMethod2File.setText(pkg_resources.resource_filename(__name__, 'DriftModelRT/resources/DemoBatchListMethod2.csv'))
         self.lePreyDetectionProbability.setText("1.0")
         self.leReactionDistanceMultiplier.setText("1.0")
         self.cbCaptureSuccessMethod.setCurrentIndex(0)        
@@ -147,14 +152,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                       'cbAssimilationMethod' : self.cbAssimilationMethod.currentIndex(),
                            'ckbOptimizeDiet' : self.ckbOptimizeDiet.isChecked() 
                          }
-        outFilePath = QtWidgets.QFileDialog.getSaveFileName(self, "Choose a name and location to save the model settings (.hsc file)", expanduser("~"), "Habitat suitability curve settings (*.hsc)")[0]
+        outFilePath = QtWidgets.QFileDialog.getSaveFileName(self, "Choose a name and location to save the model settings (.hsc file)", os.path.expanduser("~"), "Habitat suitability curve settings (*.hsc)")[0]
         file = open(outFilePath, 'wb')
         pickle.dump(savedSettings, file)
         file.close()
         self.status("Saved model settings to {0}".format(outFilePath))
         
     def loadModelSettings(self):
-        inFilePath = QtWidgets.QFileDialog.getOpenFileName(self,"Choose the .hsc file containing saved settings.",expanduser("~"),"Habitat suitability curve settings (*.hsc)")[0]
+        inFilePath = QtWidgets.QFileDialog.getOpenFileName(self,"Choose the .hsc file containing saved settings.",os.path.expanduser("~"),"Habitat suitability curve settings (*.hsc)")[0]
         if inFilePath != "": 
             file = open(inFilePath, 'rb')
             savedSettings = pickle.load(file)
@@ -183,11 +188,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             
     def chooseFile(self, whichFile):
         if whichFile == 'drift density':
-            filePath = QtWidgets.QFileDialog.getOpenFileName(self,"Choose the CSV file containing drift density information.",expanduser("~"),"CSV Files (*.csv)")[0]
+            filePath = QtWidgets.QFileDialog.getOpenFileName(self,"Choose the CSV file containing drift density information.",os.path.expanduser("~"),"CSV Files (*.csv)")[0]
             if filePath != "": self.leDriftDensityFile.setText(filePath)
-        elif whichFile == 'depth velocity':
-            filePath = QtWidgets.QFileDialog.getOpenFileName(self,"Choose the CSV file containing depth and velocity information.",expanduser("~"),"CSV Files (*.csv)")[0]
-            if filePath != "": self.leDepthVelocityFile.setText(filePath)
+        elif whichFile == 'batch method 1':
+            filePath = QtWidgets.QFileDialog.getOpenFileName(self,"Choose the CSV file containing depth and velocity information.",os.path.expanduser("~"),"CSV Files (*.csv)")[0]
+            if filePath != "": self.leBatchMethod1File.setText(filePath)
+        elif whichFile == 'batch method 2':
+            filePath = QtWidgets.QFileDialog.getOpenFileName(self,"Choose the CSV file containing depth and velocity information.",os.path.expanduser("~"), "CSV Files (*.csv)")[0]
+            if filePath != "": self.leBatchMethod1File.setText(filePath)
         if filePath != "": self.status("Set {0} file to {1}.".format(whichFile, filePath))
         
     def configureForager(self):
@@ -209,10 +217,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                 self.cbTurbulenceAdjustment.currentIndex(),\
                                 self.cbAssimilationMethod.currentIndex()\
                                 )
+        self.foragerIsConfigured = True
         
-    def runModel(self):
+    def runModel(self, shouldShowPlots=True, shouldConfigureForager=True):
         self.status("Running model...")
-        self.configureForager()
+        if shouldConfigureForager: self.configureForager()
         self.depthInterval = int(self.leIntervalDepth.text())
         self.velocityInterval = int(self.leIntervalVelocity.text())
         maxDepth = int(self.leMaxDepth.text())
@@ -239,13 +248,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.status("Calculated NREI = {0:.4f} j/s at depth = {1:.2f} cm and velocity = {2:.2f} cm/s.".format(result.netRateOfEnergyIntake,depth,velocity))
         for result in results: result.standardizeSuitability(maxNetRateOfEnergyIntake) # Calculate the standardized suitability for each result after the overall maximum is known
         self.status("Completed NREI calculations for {0} depth/velocity combinations with maximun NREI = {1:.2f} J/s.".format(len(dv),maxNetRateOfEnergyIntake))
-        self.pbModelRunProgress.setValue(0)   # Reset progress bar    
-        self.hsDepthForVelocityPlot.setMaximum(maxDepth/self.depthInterval)
-        self.hsVelocityForDepthPlot.setMaximum(maxVelocity/self.velocityInterval)
-        self.currentResult = ModelSetResult(self, results, maxNetRateOfEnergyIntake)
-        self.showPlots()
-        self.swResultsControls.setCurrentIndex(1) # Make the sliders/buttons to control the 'Results' plots visible by switching the stacked widget to the non-blank page
-        self.mainTabWidget.setCurrentIndex(1) # Switch user to 'Results' tab
+        self.pbModelRunProgress.setValue(0)   # Reset progress bar
+        if shouldShowPlots:
+            self.hsDepthForVelocityPlot.setMaximum(maxDepth/self.depthInterval)
+            self.hsVelocityForDepthPlot.setMaximum(maxVelocity/self.velocityInterval)
+            self.currentResult = ModelSetResult(self, results, maxNetRateOfEnergyIntake)
+            self.showPlots()
+            self.swResultsControls.setCurrentIndex(1) # Make the sliders/buttons to control the 'Results' plots visible by switching the stacked widget to the non-blank page
+            self.mainTabWidget.setCurrentIndex(1) # Switch user to 'Results' tab
+        else:
+            self.currentResult = ModelSetResult(self, results, maxNetRateOfEnergyIntake)
 
     def showPlots(self):
         responseDict = {0 : 'netRateOfEnergyIntake',
@@ -269,47 +281,77 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.currentResult.plotResponseSurface(self.mplDepthAndVelocityLayout)
             self.currentResult.showDefaultCurves()
             
-    def runBatch(self):
-        inFilePath = self.leDepthVelocityFile.text()
-        outFilePath = QtWidgets.QFileDialog.getSaveFileName(self, "Choose a name and location for the output CSV file", expanduser("~"), ".csv")[0]
+    def runBatchMethod1(self):
+        inFilePath = self.leBatchMethod1File.text()
+        outFilePath = QtWidgets.QFileDialog.getSaveFileName(self, "Choose a name and location for the output CSV file", os.path.expanduser("~"), ".csv")[0]
         if outFilePath == '':
-            self.status("Canceled batch process because no output file was selected.")
+            self.status("Canceled batch method 1 process because no output file was selected.")
         else:
             inputs = []
             self.configureForager()
             with open(inFilePath, newline='') as csvFile:
                 reader = csv.reader(csvFile)
-                next(reader, None) # skip the header row
+                next(reader, None)  # skip the header row
                 for row in reader:
                     try:
                         label = row[0]
                         depth = float(row[1])
                         velocity = float(row[2])
-                        inputs.append((label,depth,velocity))
+                        try:                            # use custom length/mass if both are specified in CSV file
+                            forkLength = float(row[3])
+                            mass = float(row[4])
+                        except ValueError:         # otherwise use the ones from the main window
+                            mass = self.currentForager.mass
+                            forkLength = self.currentForager.forkLength
+                        try:  # use custom temperature if specified in CSV file
+                            temperature = float(row[5])
+                        except ValueError:  # otherwise use the temperature from the main window
+                            temperature = self.currentForager.waterTemperature
+                        if row[6] != "":
+                            if os.path.isfile(row[6]):
+                                customDriftFile = row[6]
+                            else:
+                                customDriftFile = None
+                        else:
+                            customDriftFile = None
+                        inputs.append((label, depth, velocity, forkLength, mass, temperature, customDriftFile))
                     except ValueError as err:
-                        self.statusError("Value encountered in depth/velocity file that could not be converted to a number! Skipping it. Specific error: {0}".format(err))
+                        self.statusError("Value encountered in batch method 1 input file that could not be converted to a number! Skipping it. Specific error: {0}".format(err))
             if len(inputs) == 0:
-                self.statusError("Depth/velocity file did not contain any rows.")
+                self.statusError("Batch method 1 input file did not contain any rows.")
             else:
-                self.status("Calculating NREI for {0} depth/velocity combinations.".format(len(inputs)))
+                self.status("Calculating NREI for {0} rows of the batch method 1 input file.".format(len(inputs)))
                 maxNetRateOfEnergyIntake = -100000
                 results = []
                 for row in inputs:
-                    label, depth, velocity = row
+                    label, depth, velocity, forkLength, mass, temperature, customDriftFile = row
+                    self.currentForager.mass = mass
+                    self.currentForager.forkLength = forkLength
+                    self.currentForager.waterTemperature = temperature
+                    if customDriftFile is not None:
+                        self.currentForager.filterPreyTypes(PreyType.loadPreyTypes(customDriftFile, self))
                     if self.ckbOptimizeDiet.isChecked():
                         result = self.currentForager.runForagingModelWithDietOptimization(depth, velocity, self.modelGridSize)
                     else:
                         result = self.currentForager.runForagingModel(depth, velocity, self.modelGridSize)
                     result.pointLabel = label
+                    result.forkLength = forkLength
+                    result.mass = mass
+                    result.temperature = temperature
+                    result.driftFile = customDriftFile if customDriftFile is not None else self.leDriftDensityFile.text()
                     results.append(result)
                     maxNetRateOfEnergyIntake = result.netRateOfEnergyIntake if result.netRateOfEnergyIntake > maxNetRateOfEnergyIntake else maxNetRateOfEnergyIntake
                     self.status("Calculated NREI = {0:.4f} J/s at depth = {1:.2f} cm and velocity = {2:.2f} cm/s for point labeled '{3}'.".format(result.netRateOfEnergyIntake,depth,velocity,label))
                 for result in results: result.standardizeSuitability(maxNetRateOfEnergyIntake) # Calculate the standardized suitability for each result after the overall maximum is known
                 with open(outFilePath, 'wt') as outFile:
-                    writer = csv.writer(outFile, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                    writer = csv.writer(outFile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
                     writer.writerow(['Label',
                                      'Depth (cm)',
                                      'Velocity (cm/s)',
+                                     'Fork length (cm)',
+                                     'Mass (g)',
+                                     'Temperature',
+                                     'Drift file',
                                      'Net rate of energy intake (J/s)',
                                      'Standardized habitat suitability',
                                      'Gross rate of energy intake (J/s)',
@@ -327,6 +369,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     for result in results: writer.writerow([result.pointLabel,
                                                             result.depth,
                                                             result.velocity,
+                                                            result.forkLength,
+                                                            result.mass,
+                                                            result.temperature,
+                                                            result.driftFile,
                                                             result.netRateOfEnergyIntake,
                                                             result.standardizedSuitability,
                                                             result.grossRateOfEnergyIntake,
@@ -342,8 +388,53 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                                             result.numPreyTypes,
                                                             result.proportionAssimilated])
                 self.status("Saved batch processing results to {0}.".format(outFilePath))
-            
-        
+
+    def runBatchMethod2(self):
+        inFilePath = self.leBatchMethod2File.text()
+        outFolderPath = QtWidgets.QFileDialog.getExistingDirectory(self, "Choose a folder for the output CSV files", os.path.expanduser("~"), QtWidgets.QFileDialog.ShowDirsOnly)
+        if outFolderPath == '':
+            self.status("Canceled batch method 2 process because no output folder was selected.")
+        else:
+            inputs = []
+            self.configureForager()
+            with open(inFilePath, newline='') as csvFile:
+                reader = csv.reader(csvFile)
+                next(reader, None)  # skip the header row
+                for row in reader:
+                    try:
+                        label = row[0]
+                        forkLength = float(row[1])
+                        mass = float(row[2])
+                        try:  # use custom temperature if specified in CSV file
+                            temperature = float(row[3])
+                        except ValueError:  # otherwise use the temperature from the main window
+                            temperature = self.currentForager.waterTemperature
+                        if row[4] != "":
+                            if os.path.isfile(row[4]):
+                                customDriftFile = row[4]
+                            else:
+                                customDriftFile = None
+                        else:
+                            customDriftFile = None
+                        inputs.append((label, forkLength, mass, temperature, customDriftFile))
+                    except ValueError as err:
+                        self.statusError("Value encountered in batch method 2 input file that could not be converted to a number! Skipping it. Specific error: {0}".format(err))
+            if len(inputs) == 0:
+                self.statusError("Batch method 2 input file did not contain any rows.")
+            else:
+                self.status("Calculating NREIs for {0} rows of the batch method 2 input file.".format(len(inputs)))
+                for row in inputs:
+                    label, forkLength, mass, temperature, customDriftFile = row
+                    self.status("Calculating NREI for row with label {0}.".format(label))
+                    self.currentForager.mass = mass
+                    self.currentForager.forkLength = forkLength
+                    self.currentForager.waterTemperature = temperature
+                    if customDriftFile is not None:
+                        self.currentForager.filterPreyTypes(PreyType.loadPreyTypes(customDriftFile, self))
+                    self.runModel(shouldShowPlots=False, shouldConfigureForager=False)
+                    self.currentResult.exportSpreadsheet(os.path.join(outFolderPath, "{0} (length {1:.2f} -- mass {2:.2f} -- temp {3:.2f}).csv".format(label, forkLength, mass, temperature)))
+                self.status("Saved batch processing results to {0}.".format(outFolderPath))
+
     def plotSliceSliderChanged(self, whichCurve):
         """ Updates the depth and velocity curves when the user changes the slider to select a different depth or velocity """
         if whichCurve == 'depth':
@@ -380,7 +471,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.statusError("Cannot export results until some results have been calculated.")
         
     def exportStatusLog(self):
-        outFilePath = QtWidgets.QFileDialog.getSaveFileName(self, "Choose a name and location for the txt file to save the status log", expanduser("~"), "Text (*.txt)")[0]
+        outFilePath = QtWidgets.QFileDialog.getSaveFileName(self, "Choose a name and location for the txt file to save the status log", os.path.expanduser("~"), "Text (*.txt)")[0]
         if outFilePath != '':
             self.status("Saved status log to {0}.".format(outFilePath))
             outFile = open(outFilePath, "w")

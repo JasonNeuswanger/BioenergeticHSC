@@ -194,8 +194,8 @@ class ModelSetResult(object):
         else:
             self.ui.statusError("Requested to export non-existent plot.")
         
-    def exportSpreadsheet(self):
-        outFilePath = QtWidgets.QFileDialog.getSaveFileName(self.ui, "Choose a name and location for the output CSV file", expanduser("~"), "Spreadsheet (*.csv)")[0]
+    def exportSpreadsheet(self, path=None):
+        outFilePath = path if path is not None else QtWidgets.QFileDialog.getSaveFileName(self.ui, "Choose a name and location for the output CSV file", expanduser("~"), "Spreadsheet (*.csv)")[0]
         if outFilePath != '':
             depths = np.sort(np.unique(self.depths))
             velocities = np.sort(np.unique(self.velocities))
@@ -205,7 +205,6 @@ class ModelSetResult(object):
                 writer = csv.writer(outFile, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL)
                 writer.writerow(["velocity (row) by depth (column)"] + depths.tolist())
                 for v in velocities:
-                    writer.writerow([v] + [dictResponses[(d,v)] for d in depths])
+                    writer.writerow([v] + [dictResponses[(d, v)] for d in depths])
             self.ui.status("Saved responses for the full depth/velocity grid to to {0}.".format(outFilePath))
-            
-        
+

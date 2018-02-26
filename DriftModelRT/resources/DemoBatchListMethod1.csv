@@ -1,0 +1,21 @@
+Label,Depth,Velocity,ForkLength,Mass,Temperature,DriftFile,Notes
+1,11,30,,,,,Column A is an arbitrary index number (or text label) of the point to be processed
+2,64,8,,,,,Column B is the depth at that point (cm)
+3,76,89,,,,,Column C is the velocity at that point (cm/s)
+4,123,8,,,,,Column D is fork length (cm); is ignored unless mass is also specified
+5,78,72,,,,,Column E is mass (g); is ignored unless fork length is also specified
+6,162,2,,,,,Column F is for temperature in degrees C
+7,36,60,,,,,Column G is the address for the drift density CSV file
+8,137,34,,,,,"Columns D, E, F, and G are optional, but don't delete the columns or their headers; just leave the cells blank if you don't want to specify them"
+9,115,93,,,,,"If you leave an optional column blank, it will default to the values specified on the Model Settings tab"
+10,60,67,,,,,
+11,158,91,,,,,
+12,101,79,,,,,
+13,124,30,,,,,
+14,147,79,,,,,
+15,172,2,,,,,
+16,50,99,,,,,
+17,129,92,,,,,
+18,160,16,,,,,
+19,185,8,,,,,
+20,135,17,,,,,

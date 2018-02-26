@@ -1,0 +1,10 @@
+Label,ForkLength,Mass,Temperature,DriftFile,Notes
+Grayling 1,42,900,5,DriftModelRT/resources/DemoPreyTypesClearwater.csv,Column A is an arbitrary index number (or text label) of the point to be processed
+Grayling 2,47,1480,6,DriftModelRT/resources/DemoPreyTypesClearwater.csv,Column D is fork length (cm); is ignored unless mass is also specified
+Grayling 3,37,592,6,DriftModelRT/resources/DemoPreyTypesClearwater.csv,Column E is mass (g); is ignored unless fork length is also specified
+Dolly 1,17,46,8,DriftModelRT/resources/DemoPreyTypesPanguingue.csv,Column F is for temperature in degrees C
+Dolly 2,20,60,10,DriftModelRT/resources/DemoPreyTypesPanguingue.csv,Column G is the address for the drift density CSV file
+Dolly 3,11,10,10,DriftModelRT/resources/DemoPreyTypesPanguingue.csv,"Columns D, E, F, and G are optional, but don't delete the columns or their headers; just leave the cells blank if you don't want to specify them"
+Chinook 1,3.9,0.38,7,DriftModelRT/resources/DemoPreyTypesChena.csv,"If you leave an optional column blank, it will default to the values specified on the Model Settings tab"
+Chinook 2,4.8,1,10,DriftModelRT/resources/DemoPreyTypesChena.csv,
+Chinook 3,6.4,2.6,9,DriftModelRT/resources/DemoPreyTypesChena.csv,

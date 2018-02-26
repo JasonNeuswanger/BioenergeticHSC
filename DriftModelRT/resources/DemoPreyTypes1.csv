@@ -1,0 +1,11 @@
+Label,Min Length,Max Length,Drift Density,a,b,Energy density,
+1 mm midge,0.5,1.5,6,0.0018,2.617,5424,Values beyond column G are ignored and can be used for notes.
+1 mm class,0.5,1.5,2,,,,"Not every prey type has to represent a size class. You can use multiple rows for taxa of the same size with different regression parameters, for example."
+2 mm midge,1.51,2.5,5,0.0018,2.617,5424,"The 'a' and 'b' values in columns E and F are for the body length-dry mass regression W = a L^b, with L in mm and W in mg"
+2 mm class,1.51,2.5,1,,,,"When they are left blank, default parameters for 'All Insects' from Benke et al 1999 are used."
+3 mm class,2.51,3.5,4.5,,,,"Energy density is given in calories per gram dry weight. When it is left blank, a default of 5200 is used (Rosenfeld and Taylor 2009)."
+4 mm class,3.51,4.5,2.5,,,,"In this example, we have separate prey types for Chironomid larvae in the two smallest size classes versus other taxa."
+5 mm class,4.51,5.5,1.8,,,,Drift density is the number of drifting prey items in that category per cubic meter of water
+6 mm class,5.51,6.5,0.6,,,,The 'label' can be whatever you want
+7 mm class,6.51,7.5,0.2,,,,
+8 mm class,7.51,8.5,0.05,,,,

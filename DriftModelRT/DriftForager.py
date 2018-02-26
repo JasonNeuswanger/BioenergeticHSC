@@ -24,14 +24,14 @@ class DriftForager(object):
         self.focalDepthSpec = focalDepthSpec       # the number the user specified for the focal depth
         self.focalDepthMethod = focalDepthMethod   # the method by which the user specified the focal depth (proportion of total depth, or distance above bottom)
         self.captureSuccessMethod = captureSuccessMethod # method specified for capture success regression (piecewise or logistic)
-        self.maximumsustainableSwimmingSpeed = 36.23 * self.forkLength ** 0.19 # in cm/s, from Hughes & Dill 1990
-        self.preyDetectionProbability = preyDetectionProbability # allows reduction in detection probability as compared to lab experiments, values 0.01 to 1.0, default 1.0 (no effect)
-        self.reactionDistanceMultiplier = reactionDistanceMultiplier # allows reduction in reaction distance as compared to lab experiments, values 0.01 to 1.0, default 1.0 (no effect)
-        self.velocityProfileMethod = velocityProfileMethod # logarithmic or uniform
+        self.maximumSustainableSwimmingSpeed = 36.23 * self.forkLength ** 0.19  # in cm/s, from Hughes & Dill 1990
+        self.preyDetectionProbability = preyDetectionProbability  # allows reduction in detection probability as compared to lab experiments, values 0.01 to 1.0, default 1.0 (no effect)
+        self.reactionDistanceMultiplier = reactionDistanceMultiplier  # allows reduction in reaction distance as compared to lab experiments, values 0.01 to 1.0, default 1.0 (no effect)
+        self.velocityProfileMethod = velocityProfileMethod  # logarithmic or uniform
         self.swimmingCostSubmodel = swimmingCostSubmodel 
         self.turbulenceAdjustment = turbulenceAdjustment
         self.assimilationMethod = assimilationMethod
-        self.optimalVelocity = 17.6 * self.mass ** 0.05 # optimal swimming velocity from Stewart et al 1983 via Rosenfeld and Taylor 2009
+        self.optimalVelocity = 17.6 * self.mass ** 0.05  # optimal swimming velocity from Stewart et al 1983 via Rosenfeld and Taylor 2009
         self.status("Initialized the DriftForager object.")
         
     def filterPreyTypes(self, preyTypes):

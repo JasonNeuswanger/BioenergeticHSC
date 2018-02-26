@@ -38,13 +38,13 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="tab_Model_Settings">
          <attribute name="title">
           <string>Model Settings</string>
          </attribute>
-         <widget class="QWidget" name="">
+         <widget class="QWidget" name="layoutWidget">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -83,7 +83,7 @@
              <item>
               <widget class="QLabel" name="label_2">
                <property name="text">
-                <string>Fish wet weight</string>
+                <string>Fish wet mass</string>
                </property>
               </widget>
              </item>
@@ -888,7 +888,7 @@
                 <rect>
                  <x>0</x>
                  <y>-2</y>
-                 <width>431</width>
+                 <width>446</width>
                  <height>291</height>
                 </rect>
                </property>
@@ -1171,38 +1171,107 @@
          <attribute name="title">
           <string>Batch Process</string>
          </attribute>
-         <widget class="QWidget" name="layoutWidget">
+         <widget class="QWidget" name="layoutWidget_2">
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>10</y>
+            <y>280</y>
             <width>851</width>
-            <height>231</height>
+            <height>191</height>
            </rect>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
+          <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <widget class="QLabel" name="label_28">
+             <property name="maximumSize">
+              <size>
+               <width>831</width>
+               <height>185</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Batch method 2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Unlike method 1, this method doesn't take depths and velocities from the input file, but instead uses the ranges of depth and velocity specified in the Model Settings tab and generates a separate CSV output file for each row of the input file. Each output file contains NREI values (J/s) for every depth  (cm) and velocity (cm/s) within the specified range/intervals, similar to the output from &amp;quot;Depth and Velocity Response Spreadsheet&amp;quot; under the &amp;quot;Export&amp;quot; menu. Each row of the input file must specify fish fork length and mass, and it can optionally specify temperature and a different drift density CSV file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_14">
              <item>
-              <widget class="QLineEdit" name="leDepthVelocityFile">
+              <widget class="QLineEdit" name="leBatchMethod2File">
                <property name="readOnly">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="btnDepthVelocityFile">
+              <widget class="QPushButton" name="btnBatchMethod2File">
                <property name="text">
-                <string>Depth/velocity file</string>
+                <string>Batch method 2 specification file</string>
                </property>
               </widget>
              </item>
             </layout>
            </item>
            <item>
-            <widget class="QPushButton" name="btnRunModelOnBatch">
+            <widget class="QPushButton" name="btnRunModelOnBatchMethod2">
              <property name="text">
-              <string>Run model for all depths/velocities in file</string>
+              <string>Run model for method 2 batch specification file</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>21</y>
+            <width>851</width>
+            <height>191</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QLabel" name="label_27">
+             <property name="maximumSize">
+              <size>
+               <width>831</width>
+               <height>100</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Batch method 1&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This method reads in a CSV file in which each row contains a label, depth, velocity, and optionally a different mass, length, and/or a different drift density file from the ones specified under the Model Settings tab. It outputs a CSV file containing an NREI and related results for each row of the input file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <widget class="QLineEdit" name="leBatchMethod1File">
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnBatchMethod1File">
+               <property name="text">
+                <string>Batch method 1 specification file</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnRunModelOnBatchMethod1">
+             <property name="text">
+              <string>Run model for method 1 batch specification file</string>
              </property>
             </widget>
            </item>
