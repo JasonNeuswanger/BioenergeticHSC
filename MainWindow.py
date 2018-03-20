@@ -33,7 +33,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnDriftDensityFile.clicked.connect(lambda: self.chooseFile('drift density'))
         self.btnBatchMethod1File.clicked.connect(lambda: self.chooseFile('batch method 1'))
         self.btnBatchMethod2File.clicked.connect(lambda: self.chooseFile('batch method 2'))
-        self.btnRunModel.clicked.connect(self.runModel)
+        self.btnRunModel.clicked.connect(lambda: self.runModel(shouldShowPlots=True, shouldConfigureForager=True))
         self.btnRunModelOnBatchMethod1.clicked.connect(self.runBatchMethod1)
         self.btnRunModelOnBatchMethod2.clicked.connect(self.runBatchMethod2)
         self.btnShowDefaultCurves.clicked.connect(self.showDefaultCurves)
