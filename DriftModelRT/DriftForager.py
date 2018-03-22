@@ -129,12 +129,10 @@ class DriftForager(object):
     def handlingStats(self, preyType, preyVelocity):
         """ This comes from Hayes et al 2016, who assumed the fish travels a fixed distance (relative to the water) to catch the prey, 
             at a speed equal to the speed the prey is drifting (as opposed to maximum sustainable swimming speed used by Hughes and Dill 1990, etc). 
-            Even when the fish is detected very close to the fish laterally, the fish is assumed to detect it at a distance and begin a maneuver just
-            as it would if it detected it far away. Under this (easily calculated but probably inaccurate) premise, the distance traveled (relative
-            to the water) to intercept the prey doesn't depend on which cell the prey was detected in, just on the reaction distance to that prey type.
-            However, incorporating prey speed brings location dependence back into the equation in cases where the velocity isn't uniform everywhere,
-            i.e. when using a logarithmic velocity profile.
-            
+            The length of the pursuit is assumed to be 2/3 of the reaction distance to that prey type. However, pursuits of prey detected in
+            faster water (in the presence of a vertical velocity gradient) may cost more than pursuits of the same distance in slow water
+            because the prey speed is higher.
+
             An addition to what Hayes et al 2016 did here comes from Rosenfeld and Taylor's (2009) use of a slower, optimal velocity for the return
             leg of the maneuver, which generally matches observations. I just assume the return distance equals the pursuit distance (relative to the
             water).
