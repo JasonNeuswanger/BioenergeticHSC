@@ -330,6 +330,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.currentForager.waterTemperature = temperature
                     if customDriftFile is not None:
                         self.currentForager.filterPreyTypes(PreyType.loadPreyTypes(customDriftFile, self))
+                    self.currentForager.clear_caches()
                     if self.ckbOptimizeDiet.isChecked():
                         result = self.currentForager.runForagingModelWithDietOptimization(depth, velocity, self.modelGridSize)
                     else:
@@ -431,6 +432,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.currentForager.waterTemperature = temperature
                     if customDriftFile is not None:
                         self.currentForager.filterPreyTypes(PreyType.loadPreyTypes(customDriftFile, self))
+                    self.status("Running model for temperature {0}".format(self.currentForager.waterTemperature))
+                    self.currentForager.clear_caches()
                     self.runModel(shouldShowPlots=False, shouldConfigureForager=False)
                     self.currentResult.exportSpreadsheet(os.path.join(outFolderPath, "{0} (length {1:.2f} -- mass {2:.2f} -- temp {3:.2f}).csv".format(label, forkLength, mass, temperature)))
                 self.status("Saved batch processing results to {0}.".format(outFolderPath))

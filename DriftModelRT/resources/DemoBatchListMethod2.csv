@@ -8,3 +8,8 @@ Dolly 3,11,10,10,DriftModelRT/resources/DemoPreyTypesPanguingue.csv,"Columns D, 
 Chinook 1,3.9,0.38,7,DriftModelRT/resources/DemoPreyTypesChena.csv,"If you leave an optional column blank, it will default to the values specified on the Model Settings tab"
 Chinook 2,4.8,1,10,DriftModelRT/resources/DemoPreyTypesChena.csv,
 Chinook 3,6.4,2.6,9,DriftModelRT/resources/DemoPreyTypesChena.csv,
+Temperature 1,6.4,2.6,3,DriftModelRT/resources/DemoPreyTypesChena.csv,Five copies of Chinook 3 but with different temperatures to isolate that variable
+Temperature 2,6.4,2.6,6,DriftModelRT/resources/DemoPreyTypesChena.csv,
+Temperature 3,6.4,2.6,12,DriftModelRT/resources/DemoPreyTypesChena.csv,
+Temperature 4,6.4,2.6,15,DriftModelRT/resources/DemoPreyTypesChena.csv,
+Temperature 5,6.4,2.6,18,DriftModelRT/resources/DemoPreyTypesChena.csv,

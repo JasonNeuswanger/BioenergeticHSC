@@ -39,7 +39,7 @@ class DriftForager(object):
             equations from Wankowski (1979) as adapted by Hayes et al (2000) and used by Hayes et al (2016) with some adjustments for the prey
             length:diameter ratio of 4.3, which I don't quite understand -- might be good to ask John exactly what that means. They appear to
             use meters for fork length, but the formulas only make sense if fork length is expressed in centimters as we do here. 
-            Following Hughes et al 2003 and Hayes et al 2000, prey classes are excluded altogether if they do not fit within atomical constraints.
+            Following Hughes et al 2003 and Hayes et al 2000, prey classes are excluded altogether if they do not fit within anatomical constraints.
             And if a prey class is partially within and partially outside the constraints, its drift density is adjusted to the proportion that
             falls within the constraints, and its size, energy, etc, are adjusted to reflect that proportion.
             """
@@ -52,11 +52,11 @@ class DriftForager(object):
                 self.preyTypes.append(preyType)
             elif preyType.minLength < minPreyLength and preyType.maxLength > minPreyLength: # if the prey type overlaps the minimum size constraint
                 numPreyTypesTrimmed += 1
-                preyType.trimToSize(minPreyLength,preyType.maxLength)
+                preyType.trimToSize(minPreyLength, preyType.maxLength)
                 self.preyTypes.append(preyType)
             elif preyType.maxLength > maxPreyLength and preyType.minLength < maxPreyLength: # if the prey type overlaps the maximum size constraint
                 numPreyTypesTrimmed += 1
-                preyType.trimToSize(preyType.minLength,maxPreyLength)
+                preyType.trimToSize(preyType.minLength, maxPreyLength)
                 self.preyTypes.append(preyType)
         numPreyTypesExcluded = len(preyTypes) - len(self.preyTypes)
         self.preyTypes.sort(key=lambda x: x.energyContent)
@@ -144,14 +144,14 @@ class DriftForager(object):
         returnDistance = pursuitDistance # assumption, for now
         returnTime = returnDistance / self.optimalVelocity # return time is not factored into "handling time", but it is counted toward maneuver unsteady swimming costs
         unsteadyPursuitVelocity = np.sqrt(3.0 * preyVelocity**2) # effective velocity used for pursuit cost to account for unstady swimming, Hayes et al 2016 eqn 8
-        unsteadyReturnVelocity = np.sqrt(3.0 *  self.optimalVelocity**2) # effective velocity used for return cost to account for unstady swimming, Hayes et al 2016 eqn 8
+        unsteadyReturnVelocity = np.sqrt(3.0 * self.optimalVelocity**2) # effective velocity used for return cost to account for unstady swimming, Hayes et al 2016 eqn 8
         turnCostFactor = 0.978 * np.exp(0.222 * 0.01 * preyVelocity) # factor in the additional cost of turning beyond that of unsteady swimming, Hayes et al 2016 eqn 9, with cm-to-m conversion 0.01
         swimmingCost = (pursuitTime * self.swimmingCost(unsteadyPursuitVelocity) + returnTime * self.swimmingCost(unsteadyReturnVelocity))  * turnCostFactor
         #self.status("Individual maneuver has swimming cost {0:.2f} based on swimming {3:.2f} s at unsteady velocity {1:.2f} for velocity {2:.2f} with turn cost factor {4:.2f}.".format(swimmingCost,unsteadyVelocity,gridCell['velocity'],totalTime,turnCostFactor))
         return (pursuitTime, swimmingCost) # returned tuple contains the "handling time" (s) and energy cost (J) of one maneuver
     
     @functools.lru_cache(maxsize=2048)
-    def swimmingCost(self,velocity):
+    def swimmingCost(self, velocity):
         """ This function calls out to the selected swimming cost model and applies a turbulence scalar if needed. """
         if self.turbulenceAdjustment == 0: # No turbulence adjustment
             turbulence_scalar = 1
@@ -266,8 +266,17 @@ class DriftForager(object):
             if C > 0 and not 0 < proportionAssimilated < 1:
                 self.ui.status("Warning, bad assimilation: with C = {0:8.4f}, F = {1:8.4f}, U = {2:8.4f}, S = {3:8.4f}, and p = {5:4.4f}, fish is assimilating {4:4.4f}".format(C,F,U,S,proportionAssimilated,p))
             return proportionAssimilated
-            
-            
+
+    def clear_caches(self):
+        """ This needs to be run anytime a property that affects one of the cached functions, such as mass or temperature, is adjusted. """
+        self.reactionDistance.cache_clear()
+        self.focalDepth.cache_clear()
+        self.maximumCaptureDistance.cache_clear()
+        self.swimmingCost.cache_clear()
+        self.handlingStats.cache_clear()
+        self.proportionOfEnergyAssimilated.cache_clear()
+        self.captureSuccess.cache_clear()
+
     def runForagingModel(self, waterDepth, meanColumnVelocity, gridSize = 10):
         """ Calculates net rate of energy intake and lots of other internal/diagnostic measures. The 'total' variables
             calculated here are totals across all prey types and grid cells per unit (second) of searching time. """
