@@ -307,14 +307,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             temperature = float(row[5])
                         except ValueError:  # otherwise use the temperature from the main window
                             temperature = self.currentForager.waterTemperature
-                        if row[6] != "":
-                            if os.path.isfile(row[6]):
-                                customDriftFile = row[6]
+                        try:  # use custom turbidity if specified in CSV file
+                            turbidity = float(row[6])
+                        except ValueError:  # otherwise use the turbidity from the main window
+                            turbidity = self.currentForager.turbidity
+                        if row[7] != "":
+                            if os.path.isfile(row[7]):
+                                customDriftFile = row[7]
                             else:
                                 customDriftFile = None
                         else:
                             customDriftFile = None
-                        inputs.append((label, depth, velocity, forkLength, mass, temperature, customDriftFile))
+                        inputs.append((label, depth, velocity, forkLength, mass, temperature, turbidity, customDriftFile))
                     except ValueError as err:
                         self.statusError("Value encountered in batch method 1 input file that could not be converted to a number! Skipping it. Specific error: {0}".format(err))
             if len(inputs) == 0:
@@ -324,10 +328,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 maxNetRateOfEnergyIntake = -100000
                 results = []
                 for row in inputs:
-                    label, depth, velocity, forkLength, mass, temperature, customDriftFile = row
+                    label, depth, velocity, forkLength, mass, temperature, turbidity, customDriftFile = row
                     self.currentForager.mass = mass
                     self.currentForager.forkLength = forkLength
                     self.currentForager.waterTemperature = temperature
+                    self.currentForager.turbidity = turbidity
                     if customDriftFile is not None:
                         self.currentForager.filterPreyTypes(PreyType.loadPreyTypes(customDriftFile, self))
                     self.currentForager.clear_caches()
@@ -339,6 +344,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     result.forkLength = forkLength
                     result.mass = mass
                     result.temperature = temperature
+                    result.turbidity = turbidity
                     result.driftFile = customDriftFile if customDriftFile is not None else self.leDriftDensityFile.text()
                     results.append(result)
                     maxNetRateOfEnergyIntake = result.netRateOfEnergyIntake if result.netRateOfEnergyIntake > maxNetRateOfEnergyIntake else maxNetRateOfEnergyIntake
@@ -352,6 +358,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                      'Fork length (cm)',
                                      'Mass (g)',
                                      'Temperature',
+                                     'Turbidity',
                                      'Drift file',
                                      'Net rate of energy intake (J/s)',
                                      'Standardized habitat suitability',
@@ -373,6 +380,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                                             result.forkLength,
                                                             result.mass,
                                                             result.temperature,
+                                                            result.turbidity,
                                                             result.driftFile,
                                                             result.netRateOfEnergyIntake,
                                                             result.standardizedSuitability,
@@ -410,14 +418,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             temperature = float(row[3])
                         except ValueError:  # otherwise use the temperature from the main window
                             temperature = self.currentForager.waterTemperature
-                        if row[4] != "":
-                            if os.path.isfile(row[4]):
-                                customDriftFile = row[4]
+                        try:  # use custom turbidity if specified in CSV file
+                            turbidity = float(row[4])
+                        except ValueError:  # otherwise use the turbidity from the main window
+                            turbidity = self.currentForager.turbidity
+                        if row[5] != "":
+                            if os.path.isfile(row[5]):
+                                customDriftFile = row[5]
                             else:
                                 customDriftFile = None
                         else:
                             customDriftFile = None
-                        inputs.append((label, forkLength, mass, temperature, customDriftFile))
+                        inputs.append((label, forkLength, mass, temperature, turbidity, customDriftFile))
                     except ValueError as err:
                         self.statusError("Value encountered in batch method 2 input file that could not be converted to a number! Skipping it. Specific error: {0}".format(err))
             if len(inputs) == 0:
@@ -425,11 +437,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.status("Calculating NREIs for {0} rows of the batch method 2 input file.".format(len(inputs)))
                 for row in inputs:
-                    label, forkLength, mass, temperature, customDriftFile = row
+                    label, forkLength, mass, temperature, turbidity, customDriftFile = row
                     self.status("Calculating NREI for row with label {0}.".format(label))
                     self.currentForager.mass = mass
                     self.currentForager.forkLength = forkLength
                     self.currentForager.waterTemperature = temperature
+                    self.currentForager.turbidity = turbidity
                     if customDriftFile is not None:
                         self.currentForager.filterPreyTypes(PreyType.loadPreyTypes(customDriftFile, self))
                     self.status("Running model for temperature {0}".format(self.currentForager.waterTemperature))
