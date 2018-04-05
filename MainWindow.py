@@ -150,8 +150,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     'cbSwimmingCostSubmodel' : self.cbSwimmingCostSubmodel.currentIndex(),
                     'cbTurbulenceAdjustment' : self.cbTurbulenceAdjustment.currentIndex(),
                       'cbAssimilationMethod' : self.cbAssimilationMethod.currentIndex(),
-                           'ckbOptimizeDiet' : self.ckbOptimizeDiet.isChecked() 
-                         }
+                           'ckbOptimizeDiet' : self.ckbOptimizeDiet.isChecked(),
+                        'leDriftDensityFile' : self.leDriftDensityFile.text(),
+                        'leBatchMethod1File' : self.leBatchMethod1File.text(),
+                        'leBatchMethod2File' : self.leBatchMethod2File.text()
+                        }
         outFilePath = QtWidgets.QFileDialog.getSaveFileName(self, "Choose a name and location to save the model settings (.hsc file)", os.path.expanduser("~"), "Habitat suitability curve settings (*.hsc)")[0]
         file = open(outFilePath, 'wb')
         pickle.dump(savedSettings, file)
@@ -184,6 +187,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if 'cbTurbulenceAdjustment' in keys: self.cbTurbulenceAdjustment.setCurrentIndex(savedSettings['cbTurbulenceAdjustment'])
             if 'cbAssimilationMethod' in keys: self.cbAssimilationMethod.setCurrentIndex(savedSettings['cbAssimilationMethod'])
             if 'ckbOptimizeDiet' in keys: self.ckbOptimizeDiet.setChecked(savedSettings['ckbOptimizeDiet'])
+            if 'leDriftDensityFile' in keys: self.leDriftDensityFile.setText(savedSettings['leDriftDensityFile'])
+            if 'leBatchMethod1File' in keys: self.leBatchMethod1File.setText(savedSettings['leBatchMethod1File'])
+            if 'leBatchMethod2File' in keys: self.leBatchMethod2File.setText(savedSettings['leBatchMethod2File'])
             self.status("Loaded model settings from {0}".format(inFilePath))
             
     def chooseFile(self, whichFile):
@@ -191,11 +197,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             filePath = QtWidgets.QFileDialog.getOpenFileName(self,"Choose the CSV file containing drift density information.",os.path.expanduser("~"),"CSV Files (*.csv)")[0]
             if filePath != "": self.leDriftDensityFile.setText(filePath)
         elif whichFile == 'batch method 1':
-            filePath = QtWidgets.QFileDialog.getOpenFileName(self,"Choose the CSV file containing depth and velocity information.",os.path.expanduser("~"),"CSV Files (*.csv)")[0]
+            filePath = QtWidgets.QFileDialog.getOpenFileName(self,"Choose the CSV file containing batch specification for method 1.",os.path.expanduser("~"),"CSV Files (*.csv)")[0]
             if filePath != "": self.leBatchMethod1File.setText(filePath)
         elif whichFile == 'batch method 2':
-            filePath = QtWidgets.QFileDialog.getOpenFileName(self,"Choose the CSV file containing depth and velocity information.",os.path.expanduser("~"), "CSV Files (*.csv)")[0]
-            if filePath != "": self.leBatchMethod1File.setText(filePath)
+            filePath = QtWidgets.QFileDialog.getOpenFileName(self,"Choose the CSV file containing batch specification for method 2.",os.path.expanduser("~"), "CSV Files (*.csv)")[0]
+            if filePath != "": self.leBatchMethod2File.setText(filePath)
         if filePath != "": self.status("Set {0} file to {1}.".format(whichFile, filePath))
         
     def configureForager(self):
@@ -228,8 +234,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         maxVelocity = int(self.leMaxWaterVelocity.text())
         depths = np.arange(self.depthInterval,maxDepth+0.0001,self.depthInterval) # numpy.arange excludes the max value given, so we add 0.0001 to include maxDepth, etc.
         velocities = np.arange(self.velocityInterval,maxVelocity+0.0001,self.velocityInterval)
-        dg, vg = np.meshgrid(depths,velocities)
-        dv = np.array([dg.flatten(),vg.flatten()]).T
+        dg, vg = np.meshgrid(depths, velocities)
+        dv = np.array([dg.flatten(), vg.flatten()]).T
         self.status("Calculating NREI for {0} depth/velocity combinations.".format(len(dv)))
         results = []
         self.pbModelRunProgress.setMaximum(len(dv)-1)
