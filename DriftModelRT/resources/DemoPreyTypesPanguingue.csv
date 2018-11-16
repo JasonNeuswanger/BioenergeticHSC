@@ -1,5 +1,5 @@
-Label,Min Length,Max Length,Drift Density,a,b,Energy density,
-1 mm class,0.5,1.5,7.978199012,,,,Values beyond column G are ignored and can be used for notes.
+Label,Min Length,Max Length,Drift Density,a,b,Energy density,dryMass
+1 mm class,0.5,1.5,7.978199012,,,,Values beyond column H are ignored and can be used for notes.
 2 mm class,1.51,2.5,5.583160769,,,,"Not every prey type has to represent a size class. You can use multiple rows for taxa of the same size with different regression parameters, for example."
 3 mm class,2.51,3.5,2.545875653,,,,"The 'a' and 'b' values in columns E and F are for the body length-dry mass regression W = a L^b, with L in mm and W in mg"
 4 mm class,3.51,4.5,1.399207691,,,,"When they are left blank, default parameters for 'All Insects' from Benke et al 1999 are used."
