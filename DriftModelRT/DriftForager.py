@@ -260,7 +260,7 @@ class DriftForager(object):
             # Specific dynamic action (energy spent digesting prey)
             SDA = 0.172         # unitless coefficient for specific dynamic action 
             S = SDA * (C - F)   # S is the assimilated energy lost to specific dynamic action, from page 2-5
-            proportionAssimilated = (C - (F + U + S)) / C # proportion of consumed calories assimilated and available for respiration or growth
+            proportionAssimilated = (C - (F + U + S)) / C if C > 0 else 0 # proportion of consumed calories assimilated and available for respiration or growth
             if C > 0 and not 0 < proportionAssimilated < 1:
                 self.ui.status("Warning, bad assimilation: with C = {0:8.4f}, F = {1:8.4f}, U = {2:8.4f}, S = {3:8.4f}, and p = {5:4.4f}, fish is assimilating {4:4.4f}".format(C,F,U,S,proportionAssimilated,p))
             return proportionAssimilated
