@@ -3,6 +3,8 @@
 * Make saved/loaded settings include drift density file and batch files.
 * Allow spatial grid resolution to be in cm or bodylengths.
 * Make file extension more obvious when saving .hsc files.
+* Remove option for piecewise capture success function
+* Modify Wisconsin model parameters for larger fish
 
 # Bug list
 
