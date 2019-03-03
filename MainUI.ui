@@ -38,7 +38,7 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab_Model_Settings">
          <attribute name="title">
@@ -1175,9 +1175,9 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>260</y>
+            <y>250</y>
             <width>851</width>
-            <height>211</height>
+            <height>221</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
