@@ -38,7 +38,7 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab_Model_Settings">
          <attribute name="title">
@@ -300,6 +300,9 @@
              </item>
              <item>
               <widget class="QComboBox" name="cbSwimmingCostSubmodel">
+               <property name="currentText">
+                <string>Brett &amp; Glass 1973 (Sockeye salmon)</string>
+               </property>
                <item>
                 <property name="text">
                  <string>Brett &amp; Glass 1973 (Sockeye salmon)</string>
@@ -308,6 +311,11 @@
                <item>
                 <property name="text">
                  <string>Hayes et al 2000 (Brown/rainbow trout combination)</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Trudel &amp; Welch 2005 (Steelhead)</string>
                 </property>
                </item>
               </widget>
@@ -888,7 +896,7 @@
                 <rect>
                  <x>0</x>
                  <y>-2</y>
-                 <width>421</width>
+                 <width>445</width>
                  <height>291</height>
                 </rect>
                </property>

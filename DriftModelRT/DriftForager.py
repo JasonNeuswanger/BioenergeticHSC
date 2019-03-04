@@ -161,6 +161,8 @@ class DriftForager(object):
             return self.swimmingCostBrettGlass(velocity) * turbulence_scalar
         elif self.swimmingCostSubmodel == 1:
             return self.swimmingCostHayesEtAl(velocity) * turbulence_scalar
+        elif self.swimmingCostSubmodel == 2:
+            return self.swimmingCostTrudelWelch(velocity) * turbulence_scalar
 
     def swimmingCostHayesEtAl(self, velocity):
         """ Based on Hayes et al 2016, which is based mainly on parameters for brown trout from Elliott (1976) and rainbow trout from 
@@ -201,6 +203,12 @@ class DriftForager(object):
         oq = 14.1 # oxycaloric equivalent in units (j*mgO2) taken as 14.1 from Videler 1993
         mass = 0.8 if self.mass < 0.8 else self.mass # see note on brett_glass_regression_value method above for explanation
         return (1/3600.0) * (mass/1000.0) * oq * np.exp(np.log(SMR) + velocity*((np.log(AMR)-np.log(SMR))/u_ms))
+
+    def swimmingCostTrudelWelch(self, velocity):
+        """ Calculates swimming cost based on parameters empirical regression from Trudel and Welch (2005)"""
+        oq = 14.1 # oxycaloric equivalent in units (j*mgO2) taken as 14.1 from Videler 1993
+        return (1/3600.0) * oq * np.exp(-5.25 + (0.75*np.log(self.mass))+(1.12*np.log(velocity))+(0.047*self.waterTemperature))
+
         
     @functools.lru_cache(maxsize=2048)
     def proportionOfEnergyAssimilated(self, energyIntakeRate):
