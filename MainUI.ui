@@ -318,6 +318,16 @@
                  <string>Trudel &amp; Welch 2005 (Steelhead)</string>
                 </property>
                </item>
+               <item>
+                <property name="text">
+                 <string>Trudel and Welch 2005 (Sockeye/coho)</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Trudel and Welch 2005 (Chinook)</string>
+                </property>
+               </item>
               </widget>
              </item>
              <item>

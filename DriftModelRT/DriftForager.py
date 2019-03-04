@@ -163,6 +163,10 @@ class DriftForager(object):
             return self.swimmingCostHayesEtAl(velocity) * turbulence_scalar
         elif self.swimmingCostSubmodel == 2:
             return self.swimmingCostTrudelWelch(velocity) * turbulence_scalar
+        elif self.swimmingCostSubmodel == 3:
+            return self.swimmingCostTrudelWelchSockeye(velocity) * turbulence_scalar
+        elif self.swimmingCostSubmodel == 4:
+            return self.swimmingCostTrudelWelchSockeye(velocity) * 0.73 * turbulence_scalar # Empirical scaler for Chinook
 
     def swimmingCostHayesEtAl(self, velocity):
         """ Based on Hayes et al 2016, which is based mainly on parameters for brown trout from Elliott (1976) and rainbow trout from 
@@ -209,7 +213,11 @@ class DriftForager(object):
         oq = 14.1 # oxycaloric equivalent in units (j*mgO2) taken as 14.1 from Videler 1993
         return (1/3600.0) * oq * np.exp(-5.25 + (0.75*np.log(self.mass))+(1.12*np.log(velocity))+(0.047*self.waterTemperature))
 
-        
+    def swimmingCostTrudelWelchSockeye(self, velocity):
+        oq = 14.1 # oxycaloric equivalent in units (j*mgO2) taken as 14.1 from Videler 1993
+        return (1/3600.0) * oq * np.exp(-6.25 + (0.72*np.log(self.mass))+ (1.60*np.log(velocity)))
+
+
     @functools.lru_cache(maxsize=2048)
     def proportionOfEnergyAssimilated(self, energyIntakeRate):
         """ Calculates the proportion of the caloric content of the food source that can actually be assimilated and available for growth or other needs to
