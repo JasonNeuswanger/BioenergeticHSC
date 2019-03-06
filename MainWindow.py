@@ -83,7 +83,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.leBatchMethod2File.setText(pkg_resources.resource_filename(__name__, 'DriftModelRT/resources/DemoBatchListMethod2.csv'))
         self.lePreyDetectionProbability.setText("1.0")
         self.leReactionDistanceMultiplier.setText("1.0")
-        self.cbCaptureSuccessMethod.setCurrentIndex(0)        
         self.cbVelocityProfileMethod.setCurrentIndex(0)
         self.ckbOptimizeDiet.setChecked(True)
         self.loadFishPreset('18 cm Dolly Varden')
@@ -144,7 +143,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                            'leIntervalDepth' : self.leIntervalDepth.text(),
                 'lePreyDetectionProbability' : self.lePreyDetectionProbability.text(),
               'leReactionDistanceMultiplier' : self.leReactionDistanceMultiplier.text(),
-                    'cbCaptureSuccessMethod' : self.cbCaptureSuccessMethod.currentIndex(),
                    'cbVelocityProfileMethod' : self.cbVelocityProfileMethod.currentIndex(),
                         'cbFocalDepthMethod' : self.cbFocalDepthMethod.currentIndex(),
                     'cbSwimmingCostSubmodel' : self.cbSwimmingCostSubmodel.currentIndex(),
@@ -180,7 +178,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if 'leIntervalDepth' in keys: self.leIntervalDepth.setText(savedSettings['leIntervalDepth'])
             if 'lePreyDetectionProbability' in keys: self.leIntervalDepth.setText(savedSettings['lePreyDetectionProbability'])
             if 'leReactionDistanceMultiplier' in keys: self.leIntervalDepth.setText(savedSettings['leReactionDistanceMultiplier'])
-            if 'cbCaptureSuccessMethod' in keys: self.cbCaptureSuccessMethod.setCurrentIndex(savedSettings['cbCaptureSuccessMethod'])
             if 'cbVelocityProfileMethod' in keys: self.cbVelocityProfileMethod.setCurrentIndex(savedSettings['cbVelocityProfileMethod'])
             if 'cbFocalDepthMethod' in keys: self.cbFocalDepthMethod.setCurrentIndex(savedSettings['cbFocalDepthMethod'])
             if 'cbSwimmingCostSubmodel' in keys: self.cbSwimmingCostSubmodel.setCurrentIndex(savedSettings['cbSwimmingCostSubmodel'])
@@ -217,7 +214,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                 float(self.leReactionDistanceMultiplier.text()),\
                                 float(self.leFocalDepthSpec.text()),\
                                 self.cbFocalDepthMethod.currentIndex(),\
-                                self.cbCaptureSuccessMethod.currentIndex(),\
                                 self.cbVelocityProfileMethod.currentIndex(),\
                                 self.cbSwimmingCostSubmodel.currentIndex(),\
                                 self.cbTurbulenceAdjustment.currentIndex(),\

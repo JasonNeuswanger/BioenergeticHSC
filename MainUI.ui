@@ -292,40 +292,6 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
-              <widget class="QLabel" name="label_11">
-               <property name="text">
-                <string>Swimming cost submodel</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="cbSwimmingCostSubmodel">
-               <property name="currentText">
-                <string>Hayes et al 2000 (Brown/rainbow trout combination)</string>
-               </property>
-               <item>
-                <property name="text">
-                 <string>Hayes et al 2000 (Brown/rainbow trout combination)</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Trudel &amp; Welch 2005 (Steelhead)</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Trudel and Welch 2005 (Sockeye/coho)</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Trudel and Welch 2005 (Chinook)</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-             <item>
               <spacer name="horizontalSpacer_16">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -387,28 +353,35 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_10">
              <item>
-              <widget class="QLabel" name="label_8">
+              <widget class="QLabel" name="label_11">
                <property name="text">
-                <string>Capture success method</string>
+                <string>Swimming cost submodel</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="cbCaptureSuccessMethod">
-               <property name="maximumSize">
-                <size>
-                 <width>170</width>
-                 <height>16777215</height>
-                </size>
+              <widget class="QComboBox" name="cbSwimmingCostSubmodel">
+               <property name="currentText">
+                <string>Hayes et al 2000 (Brown/rainbow trout combination)</string>
                </property>
                <item>
                 <property name="text">
-                 <string>Logistic regression</string>
+                 <string>Hayes et al 2000 (Brown/rainbow trout combination)</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>Piecewise regression</string>
+                 <string>Trudel &amp; Welch 2005 (Steelhead)</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Trudel and Welch 2005 (Sockeye/coho)</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Trudel and Welch 2005 (Chinook)</string>
                 </property>
                </item>
               </widget>

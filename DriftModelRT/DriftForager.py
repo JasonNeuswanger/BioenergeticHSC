@@ -14,7 +14,7 @@ u_ms_params = np.array([[16.0807, 9.7663, -0.9914, 0.1493, 0.0005], [16.8226, 11
 
 class DriftForager(object):
     
-    def __init__(self, ui, preyTypes, mass, forkLength, waterTemperature, turbidity, preyDetectionProbability, reactionDistanceMultiplier, focalDepthSpec, focalDepthMethod, captureSuccessMethod, velocityProfileMethod, swimmingCostSubmodel,turbulenceAdjustment,assimilationMethod):
+    def __init__(self, ui, preyTypes, mass, forkLength, waterTemperature, turbidity, preyDetectionProbability, reactionDistanceMultiplier, focalDepthSpec, focalDepthMethod, velocityProfileMethod, swimmingCostSubmodel,turbulenceAdjustment,assimilationMethod):
         self.ui = ui                               # the main program user interface; should be minimally referenced here except to send status messages
         self.mass = mass                           # mass in grams
         self.forkLength = forkLength               # fork length in cm
@@ -23,7 +23,6 @@ class DriftForager(object):
         self.turbidity = turbidity                 # turbidity in NTUs
         self.focalDepthSpec = focalDepthSpec       # the number the user specified for the focal depth
         self.focalDepthMethod = focalDepthMethod   # the method by which the user specified the focal depth (proportion of total depth, or distance above bottom)
-        self.captureSuccessMethod = captureSuccessMethod # method specified for capture success regression (piecewise or logistic)
         self.maximumSustainableSwimmingSpeed = 36.23 * self.forkLength ** 0.19  # in cm/s, from Hughes & Dill 1990
         self.preyDetectionProbability = preyDetectionProbability  # allows reduction in detection probability as compared to lab experiments, values 0.01 to 1.0, default 1.0 (no effect)
         self.reactionDistanceMultiplier = reactionDistanceMultiplier  # allows reduction in reaction distance as compared to lab experiments, values 0.01 to 1.0, default 1.0 (no effect)
@@ -113,17 +112,8 @@ class DriftForager(object):
         RD = self.reactionDistance(preyType)
         FL = self.forkLength # in cm
         T = self.waterTemperature
-        if self.captureSuccessMethod == 1: # piecewise regression given in Rosenfeld & Taylor 2009
-            csLowV = 1.02 - (0.00634 * V) - (0.00135 * T) + (0.00074 * V * FL) - (0.0004 * V * d)
-            csHighV = 1.04 - (0.0131 * V) - (0.038 * d) + (0.00567 * T) + (0.00119 * V * FL) - (0.00114 * V * d) + (0.00478 * FL * d)
-            if waterVelocity < 15: cs = csLowV
-            elif waterVelocity > 20: cs = csHighV
-            else: cs = (csLowV + csHighV)/2.0
-            if cs > 1: self.ui.statusError("Capture success probability > 1 (cs = {0:.2f}) calculated by piecewise regression, rounding down to 1.".format(cs))
-            return min(cs,1) # cap the result at 1, the highest possible value for a probability, although the regression often gives a larger value
-        elif self.captureSuccessMethod == 0: # logistic regression given in Rosenfeld & Taylor 2009
-            u = 1.28 - 0.0588 * V + 0.383 * FL - 0.0918 * (d/RD) - 0.210 * V * (d/RD)
-            return np.exp(u) / (1 + np.exp(u))
+        u = 1.28 - 0.0588 * V + 0.383 * FL - 0.0918 * (d/RD) - 0.210 * V * (d/RD)
+        return np.exp(u) / (1 + np.exp(u))
     
     @functools.lru_cache(maxsize=32768)
     def handlingStats(self, preyType, preyVelocity):
