@@ -301,13 +301,8 @@
              <item>
               <widget class="QComboBox" name="cbSwimmingCostSubmodel">
                <property name="currentText">
-                <string>Brett &amp; Glass 1973 (Sockeye salmon)</string>
+                <string>Hayes et al 2000 (Brown/rainbow trout combination)</string>
                </property>
-               <item>
-                <property name="text">
-                 <string>Brett &amp; Glass 1973 (Sockeye salmon)</string>
-                </property>
-               </item>
                <item>
                 <property name="text">
                  <string>Hayes et al 2000 (Brown/rainbow trout combination)</string>

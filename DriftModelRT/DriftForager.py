@@ -158,15 +158,14 @@ class DriftForager(object):
         elif self.turbulenceAdjustment == 2: # Rosenfeld et al 2014, equation WITH shelter from turbulence, meant for fish from 2.5 to 15 cm long
             turbulence_scalar = 10**(0.050 * (velocity / self.forkLength)**2 - 0.0069)
         if self.swimmingCostSubmodel == 0:
-            return self.swimmingCostBrettGlass(velocity) * turbulence_scalar
-        elif self.swimmingCostSubmodel == 1:
             return self.swimmingCostHayesEtAl(velocity) * turbulence_scalar
-        elif self.swimmingCostSubmodel == 2:
+        elif self.swimmingCostSubmodel == 1:
             return self.swimmingCostTrudelWelch(velocity) * turbulence_scalar
-        elif self.swimmingCostSubmodel == 3:
+        elif self.swimmingCostSubmodel == 2:
             return self.swimmingCostTrudelWelchSockeye(velocity) * turbulence_scalar
-        elif self.swimmingCostSubmodel == 4:
+        elif self.swimmingCostSubmodel == 3:
             return self.swimmingCostTrudelWelchSockeye(velocity) * 0.73 * turbulence_scalar # Empirical scaler for Chinook
+
 
     def swimmingCostHayesEtAl(self, velocity):
         """ Based on Hayes et al 2016, which is based mainly on parameters for brown trout from Elliott (1976) and rainbow trout from 
@@ -179,7 +178,7 @@ class DriftForager(object):
         b3 = 2.34
         return a * self.mass**b1 * np.exp(b2*self.waterTemperature) * np.exp(b3*0.01*velocity) * 4.1868 / 86400
     
-    def brett_glass_regression_value(self, params):
+    def brett_glass_regression_value(self, params): ## Note, the Brett and Glass model has been swapped out for the Trudel and Welch models.
         """ Calculates intermediate quantities for swimming costs using Hughes & Kelly's (1996) tabular reformulation of Brett & Glass's (1972) graphical model 
             of swimming costs. The params variable will hold one of the three sets of parameters defined at the top of the file. One odd feature of this 
             function (added by Jason Neuswanger) that mass is rounded up to 0.8 grams for fish smaller than that. The model was formulated based on sockeye 
@@ -199,7 +198,7 @@ class DriftForager(object):
         return b1 + b2*np.log(mass) + b3*np.log(mass)**2 + b4*np.log(mass)**3 + b5*np.log(mass)**4
 
     def swimmingCostBrettGlass(self, velocity):
-        """ Calculates swimming cost based on parameters from Brett & Glass's (1973) graphical model as digitized into a table by Hughes & Kelly (1996).
+        """ THIS MODEL IS NO LONGER INCLUDED AS AN OPTION. Calculates swimming cost based on parameters from Brett & Glass's (1973) graphical model as digitized into a table by Hughes & Kelly (1996).
             Returns swimming cost per unit time (J/s) at the given velocity (cm/s), which equals the water velocity when holding steady at a focal point. """
         u_ms = self.brett_glass_regression_value(u_ms_params) # maximum sustainable swimming speed
         SMR = self.brett_glass_regression_value(smr_params)   # standard metabolic rate (mgO2 * kg/h)

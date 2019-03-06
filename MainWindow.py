@@ -110,7 +110,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.leWaterTemperature.setText("10.0")
             self.leFocalDepthSpec.setText("0.5")
             self.cbFocalDepthMethod.setCurrentIndex(0)    
-            self.cbSwimmingCostSubmodel.setCurrentIndex(0)        
+            self.cbSwimmingCostSubmodel.setCurrentIndex(2)
         else:              
             self.statusError("Tried to load preset for fish {0} that doesn't have a preset defined. Ignoring request.".format(whichFish))    
             
