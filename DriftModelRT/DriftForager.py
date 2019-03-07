@@ -154,7 +154,9 @@ class DriftForager(object):
         elif self.swimmingCostSubmodel == 2:
             return self.swimmingCostTrudelWelchSockeye(velocity) * turbulence_scalar
         elif self.swimmingCostSubmodel == 3:
-            return self.swimmingCostTrudelWelchSockeye(velocity) * 0.73 * turbulence_scalar # Empirical scaler for Chinook
+            return self.swimmingCostTrudelWelchSockeye(velocity) * 1.75 * turbulence_scalar # Empirical scaler for Coho
+        elif self.swimmingCostSubmodel == 4:
+            return self.swimmingCostTrudelWelchSockeye(velocity) * 1.15 * turbulence_scalar # Empirical scaler for Chinook
 
 
     def swimmingCostHayesEtAl(self, velocity):
@@ -200,11 +202,11 @@ class DriftForager(object):
     def swimmingCostTrudelWelch(self, velocity):
         """ Calculates swimming cost based on parameters empirical regression from Trudel and Welch (2005)"""
         oq = 14.1 # oxycaloric equivalent in units (j*mgO2) taken as 14.1 from Videler 1993
-        return (1/3600.0) * oq * np.exp(-5.25 + (0.75*np.log(self.mass))+(1.12*np.log(velocity))+(0.047*self.waterTemperature))
+        return (1/3600.0) * oq * np.exp(-1.71 + (0.8*np.log(self.mass))+(0.016*velocity)+(0.046*self.waterTemperature))
 
     def swimmingCostTrudelWelchSockeye(self, velocity):
         oq = 14.1 # oxycaloric equivalent in units (j*mgO2) taken as 14.1 from Videler 1993
-        return (1/3600.0) * oq * np.exp(-6.25 + (0.72*np.log(self.mass))+ (1.60*np.log(velocity)))
+        return (1 / 3600.0) * oq * np.exp(-4.53 + (0.79 * np.log(self.mass)) + (1.12 * np.log(velocity)) + (0.012 * self.waterTemperature))
 
 
     @functools.lru_cache(maxsize=2048)

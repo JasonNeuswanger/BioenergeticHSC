@@ -371,12 +371,17 @@
                </item>
                <item>
                 <property name="text">
-                 <string>Trudel &amp; Welch 2005 (Steelhead)</string>
+                 <string>Trudel and Welch 2005 (Steelhead)</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>Trudel and Welch 2005 (Sockeye/coho)</string>
+                 <string>Trudel and Welch 2005 (Sockeye)</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Trudel and Welch 2005 (Coho)</string>
                 </property>
                </item>
                <item>
