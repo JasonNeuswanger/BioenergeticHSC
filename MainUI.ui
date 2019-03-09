@@ -292,23 +292,6 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
-              <spacer name="horizontalSpacer_16">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_4">
-             <item>
               <widget class="QLabel" name="label_12">
                <property name="text">
                 <string>Vertical velocity profile</string>
@@ -336,7 +319,7 @@
               </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer_15">
+              <spacer name="horizontalSpacer_16">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -351,7 +334,7 @@
             </layout>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
               <widget class="QLabel" name="label_11">
                <property name="text">
@@ -389,6 +372,40 @@
                  <string>Trudel and Welch 2005 (Chinook)</string>
                 </property>
                </item>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_15">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <item>
+              <widget class="QLabel" name="label_8">
+               <property name="text">
+                <string>Velocity refuge multiplier</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="leVelocityRefugeMultiplier">
+               <property name="maximumSize">
+                <size>
+                 <width>59</width>
+                 <height>16777215</height>
+                </size>
+               </property>
               </widget>
              </item>
              <item>
@@ -484,7 +501,7 @@
                </item>
                <item>
                 <property name="text">
-                 <string>Wisconsin Bioenergetics Model</string>
+                 <string>Wisconsin Bioenergetics Model (Chinook/coho)</string>
                 </property>
                </item>
               </widget>
