@@ -308,7 +308,7 @@ class DriftForager(object):
         gridSymmetryFactor = 2 # Doubles effective area of each grid cell to account for the fact that the computation grid only covers half of the symmetric foraging area.
         totalPreyEncountered = 0
         totalReactionDistance = 0
-        totalFocalSwimmingCost = self.swimmingCost(CalculationGrid.velocityAtDepth(self.velocityProfileMethod,self.focalDepth(waterDepth),waterDepth,meanColumnVelocity) * self.velocityRefugeMultiplier)
+        totalFocalSwimmingCost = self.swimmingCost(CalculationGrid.velocityAtDepth(self.velocityProfileMethod,self.focalDepth(waterDepth),waterDepth,meanColumnVelocity * self.velocityRefugeMultiplier))
         for preyType in self.preyTypes:
             grid = CalculationGrid(preyType, self.reactionDistance(preyType), self.focalDepth(waterDepth), waterDepth, meanColumnVelocity, self.velocityProfileMethod, gridSize)
             preyType.ingestionCount = 0

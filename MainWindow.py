@@ -111,7 +111,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.leWaterTemperature.setText("10.0")
             self.leFocalDepthSpec.setText("0.5")
             self.cbFocalDepthMethod.setCurrentIndex(0)    
-            self.cbSwimmingCostSubmodel.setCurrentIndex(2)
+            self.cbSwimmingCostSubmodel.setCurrentIndex(4)
         else:              
             self.statusError("Tried to load preset for fish {0} that doesn't have a preset defined. Ignoring request.".format(whichFish))    
             
@@ -145,7 +145,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                            'leIntervalDepth' : self.leIntervalDepth.text(),
                 'lePreyDetectionProbability' : self.lePreyDetectionProbability.text(),
               'leReactionDistanceMultiplier' : self.leReactionDistanceMultiplier.text(),
-                 'leVelocityRefugeMultiplier': self.leVelocityRefugeMultiplier.text(),
+                'leVelocityRefugeMultiplier' : self.leVelocityRefugeMultiplier.text(),
                    'cbVelocityProfileMethod' : self.cbVelocityProfileMethod.currentIndex(),
                         'cbFocalDepthMethod' : self.cbFocalDepthMethod.currentIndex(),
                     'cbSwimmingCostSubmodel' : self.cbSwimmingCostSubmodel.currentIndex(),
