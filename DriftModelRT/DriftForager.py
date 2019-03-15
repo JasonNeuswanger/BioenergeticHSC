@@ -149,15 +149,15 @@ class DriftForager(object):
         elif self.turbulenceAdjustment == 2: # Rosenfeld et al 2014, equation WITH shelter from turbulence, meant for fish from 2.5 to 15 cm long
             turbulence_scalar = 10**(0.050 * (velocity / self.forkLength)**2 - 0.0069)
         if self.swimmingCostSubmodel == 0:
-            return self.swimmingCostHayesEtAl(velocity) * turbulence_scalar
+            return self.swimmingCostHayesEtAl(velocity * self.focalVelocityScaler) * turbulence_scalar
         elif self.swimmingCostSubmodel == 1:
-            return self.swimmingCostTrudelWelchSteelhead(velocity) * turbulence_scalar
+            return self.swimmingCostTrudelWelchSteelhead(velocity * self.focalVelocityScaler) * turbulence_scalar
         elif self.swimmingCostSubmodel == 2:
-            return self.swimmingCostTrudelWelchSockeye(velocity) * turbulence_scalar
+            return self.swimmingCostTrudelWelchSockeye(velocity * self.focalVelocityScaler) * turbulence_scalar
         elif self.swimmingCostSubmodel == 3:
-            return self.swimmingCostTrudelWelchCoho(velocity) * turbulence_scalar
+            return self.swimmingCostTrudelWelchCoho(velocity * self.focalVelocityScaler) * turbulence_scalar
         elif self.swimmingCostSubmodel == 4:
-            return self.swimmingCostTrudelWelchChinook(velocity) *  turbulence_scalar
+            return self.swimmingCostTrudelWelchChinook(velocity * self.focalVelocityScaler) *  turbulence_scalar
 
 
     def swimmingCostHayesEtAl(self, velocity):
@@ -308,7 +308,7 @@ class DriftForager(object):
         gridSymmetryFactor = 2 # Doubles effective area of each grid cell to account for the fact that the computation grid only covers half of the symmetric foraging area.
         totalPreyEncountered = 0
         totalReactionDistance = 0
-        totalFocalSwimmingCost = self.swimmingCost(CalculationGrid.velocityAtDepth(self.velocityProfileMethod,self.focalDepth(waterDepth),waterDepth,meanColumnVelocity * self.focalVelocityScaler))
+        totalFocalSwimmingCost = self.swimmingCost(CalculationGrid.velocityAtDepth(self.velocityProfileMethod,self.focalDepth(waterDepth),waterDepth,meanColumnVelocity))
         for preyType in self.preyTypes:
             grid = CalculationGrid(preyType, self.reactionDistance(preyType), self.focalDepth(waterDepth), waterDepth, meanColumnVelocity, self.velocityProfileMethod, gridSize)
             preyType.ingestionCount = 0
