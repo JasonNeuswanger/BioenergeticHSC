@@ -14,7 +14,7 @@ u_ms_params = np.array([[16.0807, 9.7663, -0.9914, 0.1493, 0.0005], [16.8226, 11
 
 class DriftForager(object):
     
-    def __init__(self, ui, preyTypes, mass, forkLength, waterTemperature, turbidity, reactionDistanceMultiplier, preyDetectionProbability, velocityRefugeMultiplier, focalDepthSpec, focalDepthMethod, velocityProfileMethod, swimmingCostSubmodel,turbulenceAdjustment,assimilationMethod):
+    def __init__(self, ui, preyTypes, mass, forkLength, waterTemperature, turbidity, preyDetectionProbability, reactionDistanceMultiplier, focalVelocityScaler, focalDepthSpec, focalDepthMethod, velocityProfileMethod, swimmingCostSubmodel,turbulenceAdjustment,assimilationMethod):
         self.ui = ui                               # the main program user interface; should be minimally referenced here except to send status messages
         self.mass = mass                           # mass in grams
         self.forkLength = forkLength               # fork length in cm
@@ -26,7 +26,7 @@ class DriftForager(object):
         self.maximumSustainableSwimmingSpeed = 36.23 * self.forkLength ** 0.19  # in cm/s, from Hughes & Dill 1990
         self.preyDetectionProbability = preyDetectionProbability  # allows reduction in detection probability as compared to lab experiments, values 0.01 to 1.0, default 1.0 (no effect)
         self.reactionDistanceMultiplier = reactionDistanceMultiplier  # allows reduction in reaction distance as compared to lab experiments, values 0.01 to 1.0, default 1.0 (no effect)
-        self.velocityRefugeMultiplier = velocityRefugeMultiplier  # Reduces velocity in total swimming cost calculations, values 0.01 to 1, default to 1 (no effect)
+        self.focalVelocityScaler = focalVelocityScaler  # Reduces velocity in focal swimming cost calculations, values 0.01 to 1, default to 1 (no effect)
         self.velocityProfileMethod = velocityProfileMethod  # logarithmic or uniform
         self.swimmingCostSubmodel = swimmingCostSubmodel 
         self.turbulenceAdjustment = turbulenceAdjustment
@@ -308,7 +308,7 @@ class DriftForager(object):
         gridSymmetryFactor = 2 # Doubles effective area of each grid cell to account for the fact that the computation grid only covers half of the symmetric foraging area.
         totalPreyEncountered = 0
         totalReactionDistance = 0
-        totalFocalSwimmingCost = self.swimmingCost(CalculationGrid.velocityAtDepth(self.velocityProfileMethod,self.focalDepth(waterDepth),waterDepth,meanColumnVelocity * self.velocityRefugeMultiplier))
+        totalFocalSwimmingCost = self.swimmingCost(CalculationGrid.velocityAtDepth(self.velocityProfileMethod,self.focalDepth(waterDepth),waterDepth,meanColumnVelocity * self.focalVelocityScaler))
         for preyType in self.preyTypes:
             grid = CalculationGrid(preyType, self.reactionDistance(preyType), self.focalDepth(waterDepth), waterDepth, meanColumnVelocity, self.velocityProfileMethod, gridSize)
             preyType.ingestionCount = 0

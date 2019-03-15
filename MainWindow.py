@@ -68,7 +68,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.leIntervalDepth.setValidator(QIntValidator(1, 30, self.leIntervalDepth))
         self.lePreyDetectionProbability.setValidator(QDoubleValidator(0.01, 1.0, 2, self.lePreyDetectionProbability))
         self.leReactionDistanceMultiplier.setValidator(QDoubleValidator(0.01, 1.0, 2, self.leReactionDistanceMultiplier))
-        self.leVelocityRefugeMultiplier.setValidator(QDoubleValidator(0.01, 1.0, 2, self.leVelocityRefugeMultiplier))
+        self.leFocalVelocityScaler.setValidator(QDoubleValidator(0.01, 1.0, 2, self.leFocalVelocityScaler))
         # Tell the response variable picker to check for changes
         self.cbResponseVariableToPlot.currentIndexChanged.connect(self.showPlots)
         # Set up variable to track if there's an active forager configured
@@ -84,7 +84,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.leBatchMethod2File.setText(pkg_resources.resource_filename(__name__, 'DriftModelRT/resources/DemoBatchListMethod2.csv'))
         self.lePreyDetectionProbability.setText("1.0")
         self.leReactionDistanceMultiplier.setText("1.0")
-        self.leVelocityRefugeMultiplier.setText("1.0")
+        self.leFocalVelocityScaler.setText("1.0")
         self.cbVelocityProfileMethod.setCurrentIndex(0)
         self.ckbOptimizeDiet.setChecked(True)
         self.loadFishPreset('18 cm Dolly Varden')
@@ -145,7 +145,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                            'leIntervalDepth' : self.leIntervalDepth.text(),
                 'lePreyDetectionProbability' : self.lePreyDetectionProbability.text(),
               'leReactionDistanceMultiplier' : self.leReactionDistanceMultiplier.text(),
-                'leVelocityRefugeMultiplier' : self.leVelocityRefugeMultiplier.text(),
+                     'leFocalVelocityScaler' : self.leFocalVelocityScaler.text(),
                    'cbVelocityProfileMethod' : self.cbVelocityProfileMethod.currentIndex(),
                         'cbFocalDepthMethod' : self.cbFocalDepthMethod.currentIndex(),
                     'cbSwimmingCostSubmodel' : self.cbSwimmingCostSubmodel.currentIndex(),
@@ -181,7 +181,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if 'leIntervalDepth' in keys: self.leIntervalDepth.setText(savedSettings['leIntervalDepth'])
             if 'lePreyDetectionProbability' in keys: self.leIntervalDepth.setText(savedSettings['lePreyDetectionProbability'])
             if 'leReactionDistanceMultiplier' in keys: self.leIntervalDepth.setText(savedSettings['leReactionDistanceMultiplier'])
-            if 'leVelocityRefugeMultiplier' in keys: self.leIntervalDepth.setText(savedSettings['leVelocityRefugeMultiplier'])
+            if 'leFocalVelocityScaler' in keys: self.leIntervalDepth.setText(savedSettings['leFocalVelocityScaler'])
             if 'cbVelocityProfileMethod' in keys: self.cbVelocityProfileMethod.setCurrentIndex(savedSettings['cbVelocityProfileMethod'])
             if 'cbFocalDepthMethod' in keys: self.cbFocalDepthMethod.setCurrentIndex(savedSettings['cbFocalDepthMethod'])
             if 'cbSwimmingCostSubmodel' in keys: self.cbSwimmingCostSubmodel.setCurrentIndex(savedSettings['cbSwimmingCostSubmodel'])
@@ -208,21 +208,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def configureForager(self):
         preyTypes = PreyType.loadPreyTypes(self.leDriftDensityFile.text(), self)
         self.modelGridSize = int(self.leModelGridSize.text())
-        self.currentForager = DriftForager(self,\
-                                preyTypes,\
-                                float(self.leFishMass.text()),\
-                                float(self.leFishForkLength.text()),\
-                                float(self.leWaterTemperature.text()),\
-                                float(self.leTurbidity.text()),\
-                                float(self.lePreyDetectionProbability.text()),\
-                                float(self.leReactionDistanceMultiplier.text()),\
-                                float(self.leFocalDepthSpec.text()),\
-                                float(self.leVelocityRefugeMultiplier.text()),\
-                                self.cbFocalDepthMethod.currentIndex(),\
-                                self.cbVelocityProfileMethod.currentIndex(),\
-                                self.cbSwimmingCostSubmodel.currentIndex(),\
-                                self.cbTurbulenceAdjustment.currentIndex(),\
-                                self.cbAssimilationMethod.currentIndex()\
+        self.currentForager = DriftForager(self,
+                                preyTypes,
+                                float(self.leFishMass.text()),
+                                float(self.leFishForkLength.text()),
+                                float(self.leWaterTemperature.text()),
+                                float(self.leTurbidity.text()),
+                                float(self.lePreyDetectionProbability.text()),
+                                float(self.leReactionDistanceMultiplier.text()),
+                                float(self.leFocalVelocityScaler.text()),
+                                float(self.leFocalDepthSpec.text()),
+                                self.cbFocalDepthMethod.currentIndex(),
+                                self.cbVelocityProfileMethod.currentIndex(),
+                                self.cbSwimmingCostSubmodel.currentIndex(),
+                                self.cbTurbulenceAdjustment.currentIndex(),
+                                self.cbAssimilationMethod.currentIndex()
                                 )
         self.foragerIsConfigured = True
         

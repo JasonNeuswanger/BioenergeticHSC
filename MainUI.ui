@@ -399,7 +399,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="leVelocityRefugeMultiplier">
+              <widget class="QLineEdit" name="leFocalVelocityScaler">
                <property name="maximumSize">
                 <size>
                  <width>59</width>
