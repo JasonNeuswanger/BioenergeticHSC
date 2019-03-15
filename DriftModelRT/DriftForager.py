@@ -14,7 +14,7 @@ u_ms_params = np.array([[16.0807, 9.7663, -0.9914, 0.1493, 0.0005], [16.8226, 11
 
 class DriftForager(object):
     
-    def __init__(self, ui, preyTypes, mass, forkLength, waterTemperature, turbidity, preyDetectionProbability, reactionDistanceMultiplier, velocityRefugeMultiplier, focalDepthSpec, focalDepthMethod, velocityProfileMethod, swimmingCostSubmodel,turbulenceAdjustment,assimilationMethod):
+    def __init__(self, ui, preyTypes, mass, forkLength, waterTemperature, turbidity, reactionDistanceMultiplier, preyDetectionProbability, velocityRefugeMultiplier, focalDepthSpec, focalDepthMethod, velocityProfileMethod, swimmingCostSubmodel,turbulenceAdjustment,assimilationMethod):
         self.ui = ui                               # the main program user interface; should be minimally referenced here except to send status messages
         self.mass = mass                           # mass in grams
         self.forkLength = forkLength               # fork length in cm
@@ -96,7 +96,7 @@ class DriftForager(object):
         turbidity = 0.4703560632 if self.turbidity < 0.4703560632 else self.turbidity 
         turbidityAdjustment = (31.64 - 13.31 * np.log10(turbidity)) / 36
         #self.status("Reaction distance of {0:.2f} cm for prey type of mean length {1:.2f}.".format(baseReactionDistance, preyType.length))
-        return baseReactionDistance * turbidityAdjustment * self.reactionDistanceMultiplier
+        return baseReactionDistance * turbidityAdjustment  * self.reactionDistanceMultiplier
         
     @functools.lru_cache(maxsize=2048)
     def maximumCaptureDistance(self, preyType, waterVelocity):

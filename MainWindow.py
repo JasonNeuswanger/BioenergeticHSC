@@ -215,9 +215,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                 float(self.leWaterTemperature.text()),\
                                 float(self.leTurbidity.text()),\
                                 float(self.lePreyDetectionProbability.text()),\
-                                float(self.leVelocityRefugeMultiplier.text()),\
                                 float(self.leReactionDistanceMultiplier.text()),\
                                 float(self.leFocalDepthSpec.text()),\
+                                float(self.leVelocityRefugeMultiplier.text()),\
                                 self.cbFocalDepthMethod.currentIndex(),\
                                 self.cbVelocityProfileMethod.currentIndex(),\
                                 self.cbSwimmingCostSubmodel.currentIndex(),\
