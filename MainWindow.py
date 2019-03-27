@@ -69,6 +69,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lePreyDetectionProbability.setValidator(QDoubleValidator(0.01, 1.0, 2, self.lePreyDetectionProbability))
         self.leReactionDistanceMultiplier.setValidator(QDoubleValidator(0.01, 1.0, 2, self.leReactionDistanceMultiplier))
         self.leFocalVelocityScaler.setValidator(QDoubleValidator(0.01, 1.0, 2, self.leFocalVelocityScaler))
+        self.leRoughness.setValidator(QDoubleValidator(0, 50, 1, self.leRoughness))
         # Tell the response variable picker to check for changes
         self.cbResponseVariableToPlot.currentIndexChanged.connect(self.showPlots)
         # Set up variable to track if there's an active forager configured
@@ -85,6 +86,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lePreyDetectionProbability.setText("1.0")
         self.leReactionDistanceMultiplier.setText("1.0")
         self.leFocalVelocityScaler.setText("1.0")
+        self.leRoughness.setText("5.0")
         self.cbVelocityProfileMethod.setCurrentIndex(0)
         self.ckbOptimizeDiet.setChecked(True)
         self.loadFishPreset('18 cm Dolly Varden')
@@ -146,6 +148,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 'lePreyDetectionProbability' : self.lePreyDetectionProbability.text(),
               'leReactionDistanceMultiplier' : self.leReactionDistanceMultiplier.text(),
                      'leFocalVelocityScaler' : self.leFocalVelocityScaler.text(),
+                                'leRoughness': self.leRoughness.text(),
                    'cbVelocityProfileMethod' : self.cbVelocityProfileMethod.currentIndex(),
                         'cbFocalDepthMethod' : self.cbFocalDepthMethod.currentIndex(),
                     'cbSwimmingCostSubmodel' : self.cbSwimmingCostSubmodel.currentIndex(),
@@ -182,6 +185,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if 'lePreyDetectionProbability' in keys: self.leIntervalDepth.setText(savedSettings['lePreyDetectionProbability'])
             if 'leReactionDistanceMultiplier' in keys: self.leIntervalDepth.setText(savedSettings['leReactionDistanceMultiplier'])
             if 'leFocalVelocityScaler' in keys: self.leIntervalDepth.setText(savedSettings['leFocalVelocityScaler'])
+            if 'leRoughness' in keys: self.leRoughness.setText(savedSettings['leRoughness'])
             if 'cbVelocityProfileMethod' in keys: self.cbVelocityProfileMethod.setCurrentIndex(savedSettings['cbVelocityProfileMethod'])
             if 'cbFocalDepthMethod' in keys: self.cbFocalDepthMethod.setCurrentIndex(savedSettings['cbFocalDepthMethod'])
             if 'cbSwimmingCostSubmodel' in keys: self.cbSwimmingCostSubmodel.setCurrentIndex(savedSettings['cbSwimmingCostSubmodel'])
@@ -222,7 +226,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                 self.cbVelocityProfileMethod.currentIndex(),
                                 self.cbSwimmingCostSubmodel.currentIndex(),
                                 self.cbTurbulenceAdjustment.currentIndex(),
-                                self.cbAssimilationMethod.currentIndex()
+                                self.cbAssimilationMethod.currentIndex(),
+                                float(self.leRoughness.text())
                                 )
         self.foragerIsConfigured = True
         

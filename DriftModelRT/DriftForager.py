@@ -14,7 +14,7 @@ u_ms_params = np.array([[16.0807, 9.7663, -0.9914, 0.1493, 0.0005], [16.8226, 11
 
 class DriftForager(object):
     
-    def __init__(self, ui, preyTypes, mass, forkLength, waterTemperature, turbidity, preyDetectionProbability, reactionDistanceMultiplier, focalVelocityScaler, focalDepthSpec, focalDepthMethod, velocityProfileMethod, swimmingCostSubmodel,turbulenceAdjustment,assimilationMethod):
+    def __init__(self, ui, preyTypes, mass, forkLength, waterTemperature, turbidity, preyDetectionProbability, reactionDistanceMultiplier, focalVelocityScaler, focalDepthSpec, focalDepthMethod, velocityProfileMethod, swimmingCostSubmodel,turbulenceAdjustment,assimilationMethod, roughness):
         self.ui = ui                               # the main program user interface; should be minimally referenced here except to send status messages
         self.mass = mass                           # mass in grams
         self.forkLength = forkLength               # fork length in cm
@@ -31,6 +31,7 @@ class DriftForager(object):
         self.swimmingCostSubmodel = swimmingCostSubmodel 
         self.turbulenceAdjustment = turbulenceAdjustment
         self.assimilationMethod = assimilationMethod
+        self.roughness = roughness
         self.optimalVelocity = 17.6 * self.mass ** 0.05  # optimal swimming velocity from Stewart et al 1983 via Rosenfeld and Taylor 2009
         self.status("Initialized the DriftForager object.")
         
@@ -308,9 +309,9 @@ class DriftForager(object):
         gridSymmetryFactor = 2 # Doubles effective area of each grid cell to account for the fact that the computation grid only covers half of the symmetric foraging area.
         totalPreyEncountered = 0
         totalReactionDistance = 0
-        totalFocalSwimmingCost = self.swimmingCost(CalculationGrid.velocityAtDepth(self.velocityProfileMethod,self.focalDepth(waterDepth),waterDepth,meanColumnVelocity))
+        totalFocalSwimmingCost = self.swimmingCost(CalculationGrid.velocityAtDepth(self.velocityProfileMethod,self.focalDepth(waterDepth),waterDepth,meanColumnVelocity, self.roughness))
         for preyType in self.preyTypes:
-            grid = CalculationGrid(preyType, self.reactionDistance(preyType), self.focalDepth(waterDepth), waterDepth, meanColumnVelocity, self.velocityProfileMethod, gridSize)
+            grid = CalculationGrid(preyType, self.reactionDistance(preyType), self.focalDepth(waterDepth), waterDepth, meanColumnVelocity, self.velocityProfileMethod, gridSize, self.roughness)
             preyType.ingestionCount = 0
             for cell in grid.cells:
                 cell.captureSuccess = self.preyDetectionProbability * self.captureSuccess(preyType, cell.velocity, cell.distance)

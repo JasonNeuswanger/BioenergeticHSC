@@ -23,7 +23,7 @@ class CalculationGrid(object):
 
     @staticmethod
     @functools.lru_cache(maxsize=2048)
-    def velocityAtDepth(velocityProfileMethod,depth,waterDepth,meanColumnVelocity):
+    def velocityAtDepth(velocityProfileMethod,depth,waterDepth,meanColumnVelocity, roughness):
         """ The uniform option assumes water velocity is the same from surface to bottom. The logarithmic option assumes a logarithmic velocity
             profile as described in Hayes et al (2007) page 173, and based on Gorden et al (2002), which bases it on Einsten and Barbarossa (1952).
             Other searching for Einsten and Barbarossa's formula confirms that the log involved is log10 not ln (https://pubs.usgs.gov/pp/0462b/report.pdf). 
@@ -31,7 +31,7 @@ class CalculationGrid(object):
             The formula works in any velocity unit (output velocity will be same units as input mean velocity), here using cm/s. 
             """
         if velocityProfileMethod == 0: # logarithmic
-            k = 50 # bed roughness height in mm -- make this a configurable setting in cm    
+            k = 10 * roughness if roughness < waterDepth else 10 * waterDepth # bed roughness height in mm -- make this a configurable setting in cm
             R = 0.01 * waterDepth # hydraulic radius, approximated as depth, as per Hayes et al 2007, and converted from cm to m
             H = 0.01 * depth # depth (measured down from surface), converted from cm to m
             vstar = meanColumnVelocity / (5.75 * np.log10(12.27 * R / k)) # Stream Hydrology: An Introduction for Ecologists eqn 6.50
@@ -41,7 +41,7 @@ class CalculationGrid(object):
 
     @staticmethod
     @functools.lru_cache(maxsize=2048)
-    def constructCells(preyType, reactionDistance, focalDepth, waterDepth, meanColumnVelocity, velocityProfileMethod, userGridSize):
+    def constructCells(preyType, reactionDistance, focalDepth, waterDepth, meanColumnVelocity, velocityProfileMethod, userGridSize, roughness):
         """ This method builds the grid cells. It really contains everything we want to do in __init__, but it has to be 
             abstracted out of __init__ so we can memoize previously calculated results with lru_cache, which vastly speeds
             up the program's calculation of the full model."""
@@ -59,12 +59,12 @@ class CalculationGrid(object):
         cells = []
         for x,z in xz_ingrid:
             distance = ((x - focalPoint[0])**2 + (z - focalPoint[1])**2)**0.5
-            velocity = CalculationGrid.velocityAtDepth(velocityProfileMethod, waterDepth - z, waterDepth, meanColumnVelocity)
+            velocity = CalculationGrid.velocityAtDepth(velocityProfileMethod, waterDepth - z, waterDepth, meanColumnVelocity, roughness)
             cells.append(GridCell(distance,velocity,rectArea))
         return cells
             
-    def __init__(self, preyType, reactionDistance, focalDepth, waterDepth, meanColumnVelocity, velocityProfileMethod, userGridSize):
-        self.cells = CalculationGrid.constructCells(preyType, reactionDistance, focalDepth, waterDepth, meanColumnVelocity, velocityProfileMethod, userGridSize)
+    def __init__(self, preyType, reactionDistance, focalDepth, waterDepth, meanColumnVelocity, velocityProfileMethod, userGridSize, roughness):
+        self.cells = CalculationGrid.constructCells(preyType, reactionDistance, focalDepth, waterDepth, meanColumnVelocity, velocityProfileMethod, userGridSize, roughness)
         
 class GridCell(object):
     """ For now, this class is really just a glorified data type to hold information about each cell. """
