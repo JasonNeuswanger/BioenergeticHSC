@@ -288,6 +288,52 @@ class DriftForager(object):
             if C > 0 and not 0 < proportionAssimilated < 1:
                 self.ui.status("Warning, bad assimilation: with C = {0:8.4f}, F = {1:8.4f}, U = {2:8.4f}, S = {3:8.4f}, and p = {5:4.4f}, fish is assimilating {4:4.4f}".format(C,F,U,S,proportionAssimilated,p))
             return proportionAssimilated
+        elif assimilationMethod == 3:
+            """ The same bioenergetics model but with parameters for rainbow trout from Railsback and Rose 1999 and Rand 1993. If we ever want to incorporate a wider array of species/parameters
+            then this should be coded more elegantly. """
+            # Convert energy intake rate in J/s to consumption in g /g /day based on assumed 5200 cal/g and 4.184 J/calorie = 21757 J/g dry mass,
+            # followed by wet mass = 6 * dry mass (Waters 1977, p. 115, Table I), giving 3626 J/g wet mass.
+            C = (energyIntakeRate / 3626) * (60 * 60 * 24) / self.mass  # specific consumption rate in g /g /day
+            # Parameter values are for Coho and Chinook from Fish Bioenergetics 3.0 manual and Stewart and Ibarra 1992
+            CTO = 25  # Water temperature corresponding to 0.98 of the maximun consumption rate
+            CTM = 22.5  # Water temperature at which temperature dependence is still 0.98 of the maximum
+            CTL = 24.3 # Upper water temperature at which temperature dependence is some reduced fraction (CK4) of the maximum rate
+            CQ = 3.5  # Lower water temperature at which temperature dependence is some reduced fraction (CK1) of the maximum rate
+            CK1 = 0.2  # Unitless fraction, see above
+            CK4 = 0.2  # Unitless fraction, see above
+            # Equations for consumption temperature dependence based on equation set 3 on page 2-4 of Fish Bioenergetics 3.0 manual
+            G1 = (1 / (CTO - CQ)) * np.log((0.98 * (1 - CK1)) / (CK1 * 0.02))
+            G2 = (1 / (CTL - CTM)) * np.log((0.98 * (1 - CK4)) / (CK4 * 0.02))
+            L1 = np.exp(G1 * (self.waterTemperature - CQ))
+            L2 = np.exp(G2 * (CTL - self.waterTemperature))
+            Ka = (CK1 * L1) / (1 + CK1 * (L1 - 1))
+            Kb = (CK4 * L2) / (1 + CK4 * (L2 - 1))
+            f_of_T = Ka * Kb  # temperature dependence function for consumption
+            # Basic form of consumption function from box on page 2-2 of Fish Bioenergetis 3.0 manual
+            CA = 0.628  # intercept of the allometric mass function for a 1 g fish at optimum water temperature
+            CB = -0.3  # slope of allometric mass function, i.e. coefficient of mass dependence
+            Cmax = CA * (self.mass ** CB) * f_of_T  # maximum specific feeding rate (g /g /day)
+            if C > Cmax: C = Cmax  # IMPORTANT ASSUMPTION -- A fish CAN feed at an instantaneous NREI exceeding Cmax. For assimilation, we assume it doesn't feed above Cmax for the day, i.e. it eventually stops feeding, and we cap C at Cmax. This avoids errors with negative excretion/SDA, etc.
+            p = C / Cmax  # proportion of maximum consumption
+            # Parameters for egestion and excretion based on Equation Set 2 on page 2-7 (clarified from Elliott 1976)
+            FA = 0.212  # Intercept of the proportion of consumed energy egested versus water temperature and ration
+            FB = -0.222  # Coefficient of water temperature dependence of egestion
+            FG = 0.631  # Coefficient for feeding level dependence of egestion
+            UA = 0.0314  # These three are the same
+            UB = 0.58  # as the above three, but for
+            UG = -0.299  # excretion, not egestion
+            F = FA * (self.waterTemperature ** FB) * np.exp(FG * p) * C  # egestion, g /g /day
+            U = UA * (self.waterTemperature ** UB) * np.exp(UG * p) * (C - F)  # excretion, g /g /day
+            # Specific dynamic action (energy spent digesting prey)
+            SDA = 0.172  # unitless coefficient for specific dynamic action
+            S = SDA * (C - F)  # S is the assimilated energy lost to specific dynamic action, from page 2-5
+            proportionAssimilated = (C - (
+                        F + U + S)) / C if C > 0 else 0  # proportion of consumed calories assimilated and available for respiration or growth
+            if C > 0 and not 0 < proportionAssimilated < 1:
+                self.ui.status(
+                    "Warning, bad assimilation: with C = {0:8.4f}, F = {1:8.4f}, U = {2:8.4f}, S = {3:8.4f}, and p = {5:4.4f}, fish is assimilating {4:4.4f}".format(
+                        C, F, U, S, proportionAssimilated, p))
+            return proportionAssimilated
 
     def clear_caches(self):
         """ This needs to be run anytime a property that affects one of the cached functions, such as mass or temperature, is adjusted. """
