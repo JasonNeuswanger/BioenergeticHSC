@@ -31,9 +31,9 @@ class CalculationGrid(object):
             The formula works in any velocity unit (output velocity will be same units as input mean velocity), here using cm/s. 
             """
         if velocityProfileMethod == 0: # logarithmic
-            k = 10 * roughness if roughness < waterDepth else 10 * waterDepth # bed roughness height in mm -- make this a configurable setting in cm
+            k = 0.01 * roughness if roughness < waterDepth else 0.01 * waterDepth # bed roughness height in mm -- make this a configurable setting in cm
             R = 0.01 * waterDepth # hydraulic radius, approximated as depth, as per Hayes et al 2007, and converted from cm to m
-            H = 0.01 * depth # depth (measured down from surface), converted from cm to m
+            H = 0.01 * (waterDepth - depth) # depth (measured down from surface), converted from cm to m
             vstar = meanColumnVelocity / (5.75 * np.log10(12.27 * R / k)) # Stream Hydrology: An Introduction for Ecologists eqn 6.50
             return 5.75 * np.log10(30 * H / k) * vstar # Hayes et al 2007 eqn 1
         elif velocityProfileMethod == 1: # uniform water velocity throughout
