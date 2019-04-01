@@ -26,7 +26,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__()
         self.setupUi(self)
         self.app = app
-        self.status("Welcome to BioenergeticHSC.")
+        self.status("Welcome to BioenergeticHSC (version 1.0).")
         self.currentResult = None
         self.setDefaults()
         # Tell buttons what should happen when they're clicked
@@ -310,27 +310,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         depth = float(row[1])
                         velocity = float(row[2])
                         try:                            # use custom length/mass if both are specified in CSV file
-                            forkLength = float(row[3])
-                            mass = float(row[4])
+                            forkLength = float(row[4])
+                            mass = float(row[5])
                         except ValueError:         # otherwise use the ones from the main window
                             mass = self.currentForager.mass
                             forkLength = self.currentForager.forkLength
+                        try:
+                            roughness = float(row[3])
+                        except ValueError:
+                            roughness = self.currentForager.roughness
                         try:  # use custom temperature if specified in CSV file
-                            temperature = float(row[5])
+                            temperature = float(row[6])
                         except ValueError:  # otherwise use the temperature from the main window
                             temperature = self.currentForager.waterTemperature
                         try:  # use custom turbidity if specified in CSV file
-                            turbidity = float(row[6])
+                            turbidity = float(row[7])
                         except ValueError:  # otherwise use the turbidity from the main window
                             turbidity = self.currentForager.turbidity
                         if row[7] != "":
-                            if os.path.isfile(row[7]):
-                                customDriftFile = row[7]
+                            if os.path.isfile(row[8]):
+                                customDriftFile = row[8]
                             else:
                                 customDriftFile = None
                         else:
                             customDriftFile = None
-                        inputs.append((label, depth, velocity, forkLength, mass, temperature, turbidity, customDriftFile))
+                        inputs.append((label, depth, velocity, roughness, forkLength, mass, temperature, turbidity, customDriftFile))
                     except ValueError as err:
                         self.statusError("Value encountered in batch method 1 input file that could not be converted to a number! Skipping it. Specific error: {0}".format(err))
             if len(inputs) == 0:
@@ -340,9 +344,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 maxNetRateOfEnergyIntake = -100000
                 results = []
                 for row in inputs:
-                    label, depth, velocity, forkLength, mass, temperature, turbidity, customDriftFile = row
-                    self.currentForager.mass = mass
+                    label, depth, velocity, roughness, forkLength, mass, temperature, turbidity, customDriftFile = row
+                    self.currentForager.roughness = roughness
                     self.currentForager.forkLength = forkLength
+                    self.currentForager.mass = mass
                     self.currentForager.waterTemperature = temperature
                     self.currentForager.turbidity = turbidity
                     if customDriftFile is not None:
@@ -355,6 +360,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     result.pointLabel = label
                     result.forkLength = forkLength
                     result.mass = mass
+                    result.roughness = roughness
                     result.temperature = temperature
                     result.turbidity = turbidity
                     result.driftFile = customDriftFile if customDriftFile is not None else self.leDriftDensityFile.text()
@@ -367,6 +373,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     writer.writerow(['Label',
                                      'Depth (cm)',
                                      'Velocity (cm/s)',
+                                     'Roughness (cm)',
                                      'Fork length (cm)',
                                      'Mass (g)',
                                      'Temperature',
@@ -389,6 +396,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     for result in results: writer.writerow([result.pointLabel,
                                                             result.depth,
                                                             result.velocity,
+                                                            result.roughness,
                                                             result.forkLength,
                                                             result.mass,
                                                             result.temperature,
