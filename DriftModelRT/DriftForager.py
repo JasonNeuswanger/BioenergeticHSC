@@ -135,7 +135,7 @@ class DriftForager(object):
         returnTime = returnDistance / self.optimalVelocity # return time is not factored into "handling time", but it is counted toward maneuver unsteady swimming costs
         unsteadyPursuitVelocity = np.sqrt(3.0 * preyVelocity**2) # effective velocity used for pursuit cost to account for unstady swimming, Hayes et al 2016 eqn 8
         unsteadyReturnVelocity = np.sqrt(3.0 * self.optimalVelocity**2) # effective velocity used for return cost to account for unstady swimming, Hayes et al 2016 eqn 8
-        turnCostFactor = 0.978 * np.exp(2.222 * 0.01 * preyVelocity) # factor in the additional cost of turning beyond that of unsteady swimming, Hayes et al 2016 eqn 9, with cm-to-m conversion 0.01 EDITED FOR TRANSLATION ERROR
+        turnCostFactor = 0.978 * np.exp(0.0222 * preyVelocity) # factor in the additional cost of turning beyond that of unsteady swimming, Hayes et al 2016 eqn 9, with cm-to-m conversion 0.01 EDITED FOR TRANSLATION ERROR
         swimmingCost = (pursuitTime * self.swimmingCost(unsteadyPursuitVelocity) + returnTime * self.swimmingCost(unsteadyReturnVelocity))  * turnCostFactor
         #self.status("Individual maneuver has swimming cost {0:.2f} based on swimming {3:.2f} s at unsteady velocity {1:.2f} for velocity {2:.2f} with turn cost factor {4:.2f}.".format(swimmingCost,unsteadyVelocity,gridCell['velocity'],totalTime,turnCostFactor))
         return (pursuitTime, swimmingCost) # returned tuple contains the "handling time" (s) and energy cost (J) of one maneuver
