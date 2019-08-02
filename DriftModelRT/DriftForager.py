@@ -148,7 +148,7 @@ class DriftForager(object):
         elif self.turbulenceAdjustment == 1: # Rosenfeld et al 2014, equation for no shelter from turbulence, meant for fish from 2.5 to 15 cm long
             turbulence_scalar = (10**(0.45 * velocity / self.forkLength - 0.745)) + 0.82
         elif self.turbulenceAdjustment == 2: # Rosenfeld et al 2014, equation WITH shelter from turbulence, meant for fish from 2.5 to 15 cm long
-            turbulence_scalar = 10**(0.050 * (velocity / self.forkLength)**2) - 0.0069
+            turbulence_scalar = 10**(0.050 * velocity / self.forkLength**2) - 0.0069
         if self.swimmingCostSubmodel == 0:
             return self.swimmingCostHayesEtAl(velocity * self.focalVelocityScaler) * turbulence_scalar
         elif self.swimmingCostSubmodel == 1:
