@@ -17,8 +17,16 @@ from ModelSetResult import ModelSetResult
 import os
 import csv
 import pickle
+import sys
 
-Ui_MainWindow, QMainWindow = loadUiType('MainUI.ui') # Load the classes defined by the UI file, from which the main window inherits
+def resource_path(relative_path): ## Function necessary for Pyinstaller to find .ui file during compilation
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
+ui_path = resource_path("MainUI.ui")
+
+Ui_MainWindow, QMainWindow = loadUiType(ui_path) # Load the classes defined by the UI file, from which the main window inherits
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     
