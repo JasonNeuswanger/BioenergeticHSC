@@ -466,17 +466,12 @@
                </property>
                <item>
                 <property name="text">
-                 <string>None</string>
+                 <string>No adjustment (assume steady swimming)</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>Rosenfeld et al 2014 (no shelter from turbulence)</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Rosenfeld et al 2014 (microhabitat sheltered from turbulence)</string>
+                 <string>Turbulence adjustment (increases energy costs for unsteady swimming)</string>
                 </property>
                </item>
               </widget>
