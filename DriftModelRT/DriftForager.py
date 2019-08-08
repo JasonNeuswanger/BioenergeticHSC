@@ -6,11 +6,6 @@ from copy import deepcopy
 from DriftModelRT.SingleModelResult import SingleModelResult
 from DriftModelRT.CalculationGrid import CalculationGrid
 
-# Defining parameters for the Brett & Glass 1973 swimming model as global variables so there isn't computationally expensive overhead from recreating these nparrays thousands of times 
-amr_params = np.array([(439.744, 0.835, -0.5782, 0.1335, -0.0096), (450.73, 1.1548, -0.9083, 0.1983, -0.0136), (461.716, 1.4747, -1.2384, 0.263, -0.0176), (472.702, 1.7945, -1.5684, 0.3278, -0.0216), (483.688, 2.1143, -1.8985, 0.3925, -0.0255), (494.674, 2.4341, -2.2286, 0.4573, -0.0295), (531.434, 2.555, -1.8418, 0.2961, -0.0199), (568.194, 2.6759, -1.455, 0.1349, -0.0102), (604.953, 2.7968, -1.0683, -0.0263, -0.0006), (641.713, 2.9177, -0.6815, -0.1874, 0.009), (678.473, 3.0387, -0.2948, -0.3486, 0.0187), (741.436, 7.4827, -6.8461, 0.7548, -0.0356), (804.399, 11.9268, -13.3975, 1.8581, -0.0899), (867.362, 16.3708, -19.9489, 2.9615, -0.1442), (930.325, 20.8149, -26.5003, 4.0649, -0.1985), (993.288, 25.2589, -33.0516, 5.1682, -0.2528), (977.569, 20.0484, -27.7516, 4.2329, -0.2033), (961.851, 14.8378, -22.4515, 3.2974, -0.1538), (946.133, 9.6273, -17.1515, 2.3621, -0.1044), (930.415, 4.4168, -11.8514, 1.4267, -0.0549), (914.697, -0.7937, -6.5514, 0.4913, -0.0054), (906.587, -0.927, -6.8678, 0.6507, -0.0175), (898.478, -1.0602, -7.1842, 0.8101, -0.0295), (890.368, -1.1935, -7.5006, 0.9696, -0.0416), (882.259, -1.3268, -7.8171, 1.129, -0.0536), (874.149, -1.46, -8.1335, 1.2884, -0.0657)], dtype=np.float64)
-smr_params = np.array([[45.5499, -1.6385, -0.3505, 0.0251, -0.0005], [49.6992, -3.7997, 0.2781, -0.0489, 0.0025], [53.8485, -5.9608, 0.9068, -0.1228, 0.0055], [57.9978, -8.1219, 1.5355, -0.1968, 0.0084], [62.1471, -10.283, 2.1641, -0.2708, 0.0114], [66.2965, -12.4441, 2.7928, -0.3448, 0.0144], [71.9988, -12.783, 2.6376, -0.321, 0.0135], [77.7011, -13.1218, 2.4824, -0.2972, 0.0126], [83.4034, -13.4606, 2.3272, -0.2735, 0.0117], [89.1057, -13.7995, 2.172, -0.2497, 0.0108], [94.808, -14.1383, 2.0168, -0.2259, 0.0099], [103.716, -13.7171, 1.3149, -0.1193, 0.0051], [112.623, -13.2959, 0.613, -0.0127, 0.0002], [121.531, -12.8747, -0.0889, 0.0938, -0.0046], [130.439, -12.4535, -0.7908, 0.2004, -0.0094], [139.346, -12.0323, -1.4927, 0.307, -0.0142], [151.881, -12.9877, -1.682, 0.3381, -0.0156], [164.415, -13.9431, -1.8713, 0.3692, -0.017], [176.95, -14.8985, -2.0607, 0.4003, -0.0184], [189.484, -15.8539, -2.25, 0.4314, -0.0198], [202.019, -16.8093, -2.4393, 0.4625, -0.0212], [218.934, -19.3705, -1.6324, 0.2911, -0.0107], [235.848, -21.9317, -0.8255, 0.1196, -0.0002], [252.763, -24.4929, -0.0186, -0.0518, 0.0103], [269.678, -27.0541, 0.7884, -0.2233, 0.0207], [286.592, -29.6153, 1.5953, -0.3947, 0.0312]],dtype=np.float64)
-u_ms_params = np.array([[16.0807, 9.7663, -0.9914, 0.1493, 0.0005], [16.8226, 11.0578, -1.8682, 0.3386, -0.0115], [17.5645, 12.3492, -2.7451, 0.5279, -0.0235], [18.3064, 13.6407, -3.622, 0.7173, -0.0355], [19.0483, 14.9322, -4.4989, 0.9066, -0.0475], [19.7902, 16.2237, -5.3757, 1.0959, -0.0596], [21.7221, 14.583, -4.4013, 0.9199, -0.0487], [23.6541, 12.9423, -3.427, 0.7439, -0.0378], [25.5861, 11.3016, -2.4526, 0.568, -0.027], [27.5181, 9.6609, -1.4782, 0.392, -0.0161], [29.4501, 8.0202, -0.5038, 0.216, -0.0053], [31.2651, 7.6782, -0.109, 0.1486, -0.0008], [33.0801, 7.3363, 0.2857, 0.0813, 0.0036], [34.8951, 6.9943, 0.6804, 0.014, 0.008], [36.7101, 6.6524, 1.0751, -0.0534, 0.0125], [38.5251, 6.3104, 1.4699, -0.1207, 0.0169], [38.0136, 6.759, 1.1385, -0.0551, 0.0127], [37.5021, 7.2076, 0.8072, 0.0106, 0.0085], [36.9906, 7.6561, 0.4759, 0.0763, 0.0043], [36.4791, 8.1047, 0.1445, 0.1419, 0.0001], [35.9676, 8.5533, -0.1868, 0.2076, -0.004], [35.2118, 9.1098, -0.4654, 0.251, -0.0064], [34.4561, 9.6662, -0.7441, 0.2945, -0.0088], [33.7004, 10.2227, -1.0227, 0.3379, -0.0112], [32.9446, 10.7792, -1.3014, 0.3814, -0.0135], [32.1889, 11.3357, -1.58, 0.4248, -0.0159]], dtype=np.float64)
-
 
 class DriftForager(object):
     
@@ -102,7 +97,7 @@ class DriftForager(object):
     @functools.lru_cache(maxsize=2048)
     def maximumCaptureDistance(self, preyType, waterVelocity):
         """ Maximum distance (measured in cm in the plane perpendicular to the focal point) at which the fish can capture prey.  
-            Source: Hughes & Dill 1990 """
+            Source: Hughes & Dill 1990 *THIS FUNCTION IS CURRENTLY NOT USED IN THE PROGRAM - see manual for explanation"""
         rd = self.reactionDistance(preyType)
         return np.sqrt(rd**2 - (waterVelocity * rd/self.maximumSustainableSwimmingSpeed)**2)
         
@@ -142,23 +137,17 @@ class DriftForager(object):
     
     @functools.lru_cache(maxsize=2048)
     def swimmingCost(self, velocity):
-        """ This function calls out to the selected swimming cost model and applies a turbulence scalar if needed. """
-        if self.turbulenceAdjustment == 0: # No turbulence adjustment
-            turbulence_scalar = 1
-        elif self.turbulenceAdjustment == 1: # Rosenfeld et al 2014, equation for no shelter from turbulence, meant for fish from 2.5 to 15 cm long
-            turbulence_scalar = (10**(0.45 * velocity / self.forkLength - 0.745)) + 0.82
-        elif self.turbulenceAdjustment == 2: # Rosenfeld et al 2014, equation WITH shelter from turbulence, meant for fish from 2.5 to 15 cm long
-            turbulence_scalar = 10**(0.050 * velocity / self.forkLength**2) - 0.0069
+        """ This function calls out to the selected swimming cost model. """
         if self.swimmingCostSubmodel == 0:
-            return self.swimmingCostHayesEtAl(velocity * self.focalVelocityScaler) * turbulence_scalar
+            return self.swimmingCostHayesEtAl(velocity * self.focalVelocityScaler)
         elif self.swimmingCostSubmodel == 1:
-            return self.swimmingCostTrudelWelchSteelhead(velocity * self.focalVelocityScaler) * turbulence_scalar
+            return self.swimmingCostHayesRainbow(velocity * self.focalVelocityScaler)
         elif self.swimmingCostSubmodel == 2:
-            return self.swimmingCostTrudelWelchSockeye(velocity * self.focalVelocityScaler) * turbulence_scalar
+            return self.swimmingCostTrudelWelchSockeye(velocity * self.focalVelocityScaler)
         elif self.swimmingCostSubmodel == 3:
-            return self.swimmingCostTrudelWelchCoho(velocity * self.focalVelocityScaler) * turbulence_scalar
+            return self.swimmingCostTrudelWelchCoho(velocity * self.focalVelocityScaler)
         elif self.swimmingCostSubmodel == 4:
-            return self.swimmingCostTrudelWelchChinook(velocity * self.focalVelocityScaler) *  turbulence_scalar
+            return self.swimmingCostTrudelWelchChinook(velocity * self.focalVelocityScaler)
 
 
     def swimmingCostHayesEtAl(self, velocity):
@@ -172,39 +161,30 @@ class DriftForager(object):
         b3 = 2.34
         return a * self.mass**b1 * np.exp(b2*self.waterTemperature) * np.exp(b3*0.01*velocity) * 4.1868 / 86400
     
-    def brett_glass_regression_value(self, params): ## Note, the Brett and Glass model has been swapped out for the Trudel and Welch models.
-        """ Calculates intermediate quantities for swimming costs using Hughes & Kelly's (1996) tabular reformulation of Brett & Glass's (1972) graphical model 
-            of swimming costs. The params variable will hold one of the three sets of parameters defined at the top of the file. One odd feature of this 
-            function (added by Jason Neuswanger) that mass is rounded up to 0.8 grams for fish smaller than that. The model was formulated based on sockeye 
-            salmon from 2 to 2000 g. Numerical exploration shows that it extrapolates in a sensible manner down to somewhere between 0.4 to 0.8 g, dependeing on
-            temperature. However, somewhere in that range, the relationships reverse direction and begin to show a slightly reductin in mass increasing swimming
-            costs similarly to adding several grams of mass, instead of decreasing. Eventually it shoots off to infinity. The threshold of 0.8 g appears to play 
-            it safe and avoid all this misbehavior regardless of temperature. Rounding smaller fish to 0.8 g gives more realistic results for smaller fish than
-            using the model's anomalous extrapolations in that range. Swimming costs for such small fish tend to be very small, anyway, so this difference doesn't
-            matter very much. But users studying tiny fish should be warned about it in the manual."""
-        t = int(round(self.waterTemperature))
-        b1 = params[t,0]
-        b2 = params[t,1]
-        b3 = params[t,2]
-        b4 = params[t,3]
-        b5 = params[t,4]
-        mass = 0.8 if self.mass < 0.8 else self.mass # see note above for explanation
-        return b1 + b2*np.log(mass) + b3*np.log(mass)**2 + b4*np.log(mass)**3 + b5*np.log(mass)**4
 
-    def swimmingCostBrettGlass(self, velocity):
-        """ THIS MODEL IS NO LONGER INCLUDED AS AN OPTION. Calculates swimming cost based on parameters from Brett & Glass's (1973) graphical model as digitized into a table by Hughes & Kelly (1996).
-            Returns swimming cost per unit time (J/s) at the given velocity (cm/s), which equals the water velocity when holding steady at a focal point. """
-        u_ms = self.brett_glass_regression_value(u_ms_params) # maximum sustainable swimming speed
-        SMR = self.brett_glass_regression_value(smr_params)   # standard metabolic rate (mgO2 * kg/h)
-        AMR = self.brett_glass_regression_value(amr_params)   # active metabolic rate (mgO2 * kg/h), i.e. oxygen consumption at u_ms  
-        oq = 14.1 # oxycaloric equivalent in units (j*mgO2) taken as 14.1 from Videler 1993
-        mass = 0.8 if self.mass < 0.8 else self.mass # see note on brett_glass_regression_value method above for explanation
-        return (1/3600.0) * (mass/1000.0) * oq * np.exp(np.log(SMR) + velocity*((np.log(AMR)-np.log(SMR))/u_ms))
+    def swimmingCostHayesRainbow(self, velocity):
+        """ An updated version of Hayes et al. (2016) with parameters for rainbow trout. Used in Dodrill et al. (2016)."""
+        RA = 0.013
+        RB = -0.217
+        RQ = 2.2
+        RTO = 22
+        RTM = 26
+        Y = np.log(RQ) * (RTM - RTO + 2)
+        Z = np.log(RQ) *(RTM - RTO)
+        X = (Z**2) * (1 +(1+40/Y)**0.5)**2/400
+        V = (RTM - self.waterTemperature)/(RTM - RTO)
+        Rs_FT = V ** X * np.exp(X *(1 - V))
+        Rs = RA * (self.mass ** RB) * Rs_FT * self.mass * 3240 ## SMR - cal/day
+        SC = (Rs * np.exp(0.0234 * velocity*0.01))/ 24 ## swimming costs per hour
+        return SC * 4.184 * (1/3600.0) ## Return swimming cost in Joules per second
 
-    def swimmingCostTrudelWelchSteelhead(self, velocity):
-        """ Calculates swimming cost based on steelhead parameters from regression from Trudel and Welch (2005)"""
-        oq = 14.1 # oxycaloric equivalent in units (j*mgO2) taken as 14.1 from Videler 1993
-        return (1/3600.0) * oq * np.exp(-1.71 + (0.8*np.log(self.mass))+(0.016*velocity)+(0.046*self.waterTemperature))
+
+        #A = (7.7972 + 0.1066 * self.waterTemperature ** 1.4652)/100 if self.waterTemperature <= 15 else (10**(-0.00516 * self.waterTemperature + 1.2063))/100
+        #TL = (self.forkLength - 0.155)/0.9391 ## Convert fork length to total length
+        #Vmax60 = A * (100 * (TL))** 0.6293
+        #mVel = 0.097 * (self.mass ** 0.13) * np.exp(0.045 * self.waterTemperature)
+        #maxVel = (Vmax60 + mVel)/2
+
 
     def swimmingCostTrudelWelchSockeye(self, velocity):
         """Calculates swimming cost based on sockeye parameters from regression from Trudel and Welch (2005). Note that swimming costs and SMR are calculated separately"""
@@ -339,7 +319,6 @@ class DriftForager(object):
         """ This needs to be run anytime a property that affects one of the cached functions, such as mass or temperature, is adjusted. """
         self.reactionDistance.cache_clear()
         self.focalDepth.cache_clear()
-        self.maximumCaptureDistance.cache_clear()
         self.swimmingCost.cache_clear()
         self.handlingStats.cache_clear()
         self.proportionOfEnergyAssimilated.cache_clear()
@@ -348,6 +327,10 @@ class DriftForager(object):
     def runForagingModel(self, waterDepth, meanColumnVelocity, gridSize = 10):
         """ Calculates net rate of energy intake and lots of other internal/diagnostic measures. The 'total' variables
             calculated here are totals across all prey types and grid cells per unit (second) of searching time. """
+        if self.turbulenceAdjustment == 0: # No turbulence adjustment applied
+            totalFocalSwimmingCost = self.swimmingCost(CalculationGrid.velocityAtDepth(self.velocityProfileMethod, self.focalDepth(waterDepth), waterDepth, meanColumnVelocity, self.roughness))
+        elif self.turbulenceAdjustment == 1: # Webb (1991) factor applied to increase costs due to unsteady swimming in turbulent flows
+            totalFocalSwimmingCost = self.swimmingCost(np.sqrt(3*CalculationGrid.velocityAtDepth(self.velocityProfileMethod, self.focalDepth(waterDepth), waterDepth,meanColumnVelocity, self.roughness)**2))
         totalEnergyIntake = 0
         totalCaptureManeuverCost = 0
         totalHandlingTime = 0
@@ -355,7 +338,6 @@ class DriftForager(object):
         gridSymmetryFactor = 2 # Doubles effective area of each grid cell to account for the fact that the computation grid only covers half of the symmetric foraging area.
         totalPreyEncountered = 0
         totalReactionDistance = 0
-        totalFocalSwimmingCost = self.swimmingCost(CalculationGrid.velocityAtDepth(self.velocityProfileMethod,self.focalDepth(waterDepth),waterDepth,meanColumnVelocity, self.roughness))
         for preyType in self.preyTypes:
             grid = CalculationGrid(preyType, self.reactionDistance(preyType), self.focalDepth(waterDepth), waterDepth, meanColumnVelocity, self.velocityProfileMethod, gridSize, self.roughness)
             preyType.ingestionCount = 0
