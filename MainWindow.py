@@ -99,6 +99,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ckbOptimizeDiet.setChecked(True)
         self.loadFishPreset('18 cm Dolly Varden')
         self.loadGridPreset('Fast Calculation Grid')
+        self.cbTurbulenceAdjustment.setCurrentIndex(1)
         
     def loadFishPreset(self, whichFish):
         if whichFish == '33 cm Arctic Grayling':
