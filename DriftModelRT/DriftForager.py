@@ -163,7 +163,7 @@ class DriftForager(object):
     
 
     def swimmingCostHayesRainbow(self, velocity):
-        """ An updated version of Hayes et al. (2016) with parameters for rainbow trout. Used in Dodrill et al. (2016)."""
+        """ An updated version of Hayes et al. (2016) with parameters for rainbow trout, used in Dodrill et al. (2016)."""
         RA = 0.013
         RB = -0.217
         RQ = 2.2
