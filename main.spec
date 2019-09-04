@@ -1,14 +1,14 @@
 # -*- mode: python -*-
-
 import sys
 sys.setrecursionlimit(5000)
 block_cipher = None
 
 
-a = Analysis(['main.py'],
+if sys.platform == 'darwin':
+    a = Analysis(['main.py'],
              pathex=['./BioenergeticHSC'],
+             datas=[('./MainUi.ui', '.')],
              binaries=[],
-             datas=[('./MainUI.ui', '.')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -17,9 +17,9 @@ a = Analysis(['main.py'],
              win_private_assemblies=False,
              cipher=block_cipher,
              noarchive=False)
-pyz = PYZ(a.pure, a.zipped_data,
+    pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
-exe = EXE(pyz,
+    exe = EXE(pyz,
           a.scripts,
           a.binaries,
           a.zipfiles,
@@ -29,16 +29,41 @@ exe = EXE(pyz,
           debug=True,
           bootloader_ignore_signals=False,
           strip=False,
-          upx=True,
-          runtime_tmpdir=None,
-          console=False)
-app = BUNDLE(exe,
+          upx=False,
+          console=True)
+    app = BUNDLE(exe,
             name='BioenergeticHSC.app',
             icon=None,
+            bundle_identifier=None,
             info_plist={
-                'NSHighResolutionCapable': 'True'
+        'NSHighResolutionCapable': 'True'
                 },
             )
-
-
+if sys.platform == 'win32' or sys.platform == 'win64' or sys.platform == 'linux':
+    a = Analysis(['main.py'],
+             pathex=['.\BioenergeticHSC'],
+             datas=[('\MainUi.ui', '.')],
+             binaries=[],
+             hiddenimports=[],
+             hookspath=[],
+             runtime_hooks=[],
+             excludes=[],
+             win_no_prefer_redirects=False,
+             win_private_assemblies=False,
+             cipher=block_cipher,
+             noarchive=False)
+    pyz = PYZ(a.pure, a.zipped_data,
+             cipher=block_cipher)
+    exe = EXE(pyz,
+          a.scripts,
+          a.binaries,
+          a.zipfiles,
+          a.datas,
+          [],
+          name='BioenergeticHSC',
+          debug=True,
+          bootloader_ignore_signals=False,
+          strip=False,
+          upx=False,
+          console=True)
 
