@@ -174,8 +174,8 @@ class DriftForager(object):
         X = (Z**2) * (1 +(1+40/Y)**0.5)**2/400
         V = (RTM - self.waterTemperature)/(RTM - RTO)
         Rs_FT = V ** X * np.exp(X *(1 - V))
-        Rs = RA * (self.mass ** RB) * Rs_FT * self.mass * 3240 ## SMR - cal/day
-        SC = (Rs * np.exp(0.0234 * velocity*0.01))/ 24 ## swimming costs per hour
+        Rs = RA * (self.mass ** RB) * Rs_FT * self.mass * 3240 ## SMR (e.g., costs at 0 velocity) - cal/day
+        SC = (Rs * np.exp(0.0234 * velocity)) / 24 ## swimming costs per hour - velocity input is in cm/s
         return SC * 4.184 * (1/3600.0) ## Return swimming cost in Joules per second
 
 
