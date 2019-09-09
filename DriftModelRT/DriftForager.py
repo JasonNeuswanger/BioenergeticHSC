@@ -179,11 +179,7 @@ class DriftForager(object):
         return SC * 4.184 * (1/3600.0) ## Return swimming cost in Joules per second
 
 
-        #A = (7.7972 + 0.1066 * self.waterTemperature ** 1.4652)/100 if self.waterTemperature <= 15 else (10**(-0.00516 * self.waterTemperature + 1.2063))/100
-        #TL = (self.forkLength - 0.155)/0.9391 ## Convert fork length to total length
-        #Vmax60 = A * (100 * (TL))** 0.6293
-        #mVel = 0.097 * (self.mass ** 0.13) * np.exp(0.045 * self.waterTemperature)
-        #maxVel = (Vmax60 + mVel)/2
+
 
 
     def swimmingCostTrudelWelchSockeye(self, velocity):
