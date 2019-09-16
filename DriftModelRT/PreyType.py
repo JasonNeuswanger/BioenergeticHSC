@@ -21,7 +21,7 @@ class PreyType(object):
                     b = float(row[5]) if row[5] != '' else None
                     energyDensityCalories = float(row[6]) if row[
                                                                  6] != '' else 5200  # Default energy density is 5200 cal/gm dry wt, from Rosenfeld and Taylor 2009, derived from Cummins & Wuycheck 1971
-                    dryMass = float(row[7]) if row[7] != '' else None
+                    dryMass = float(row[7]) if row[7] != '' else None  # In the rare case where dry mass is measured directly
                     preyTypes.append(
                         PreyType(label, minLength, maxLength, driftDensity, energyDensityCalories, a, b, dryMass))
                 except ValueError as err:

@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 This class creates a grid of squares approximating 1/2 of a hemispherical cross-section, taking advantage of left-right symmetry.
-The grid is unique to each prey type. If we ever need the model to accomodate laterally asymmetrical foraging areas, it will be necessary
-to change some options here and in DriftForager.py to accommodate asymmetricl grids, and it will generally double computation times.
+The grid is unique to each prey type. If we ever need the model to accommodate laterally asymmetrical foraging areas, it will be necessary
+to change some options here and in DriftForager.py to accommodate asymmetric grids, and it will generally double computation times.
 
 Unlike many previous implementations of variants of the Hughes & Dill 1990 drift feeding model, we do not bother with 
 the messy geometry of calculating the intersections of rectangular cells with a circular boundary. The real boundary
@@ -26,15 +26,12 @@ class CalculationGrid(object):
     def velocityAtDepth(velocityProfileMethod,depth,waterDepth,meanColumnVelocity, roughness):
         """ The uniform option assumes water velocity is the same from surface to bottom. The logarithmic option assumes a logarithmic velocity
             profile as described in Hayes et al (2007) page 173, and based on Gorden et al (2002), which bases it on Einsten and Barbarossa (1952).
-            Other searching for Einsten and Barbarossa's formula confirms that the log involved is log10 not ln (https://pubs.usgs.gov/pp/0462b/report.pdf). 
-            Hayes et al 2007 describes H as the distance above the bottom, but it only appears to make sense in the formula as the distance below the surface.
-            The formula works in any velocity unit (output velocity will be same units as input mean velocity), here using cm/s. **Edit - formula is now distance above
-            the bottom. k is configurable in cm but is converted to metres in the equation.
+            Other searching for Einsten and Barbarossa's formula confirms that the log involved is log10 not ln (https://pubs.usgs.gov/pp/0462b/report.pdf).
             """
         if velocityProfileMethod == 0: # logarithmic
-            k = 0.01 * roughness if roughness < waterDepth else 0.01 * waterDepth # bed roughness height in mm -- make this a configurable setting in cm
-            R = 0.01 * waterDepth # hydraulic radius, approximated as depth, as per Hayes et al 2007, and converted from cm to m
-            H = 0.01 * (waterDepth - depth) # distance above the bottom), converted from cm to m
+            k = 0.01 * roughness if roughness < waterDepth else 0.01 * waterDepth # bed roughness height in cm, converted to metres
+            R = 0.01 * waterDepth # hydraulic radius, approximated as depth, as per Hayes et al 2007, converted from cm to m
+            H = 0.01 * (waterDepth - depth) # distance above the bottom, converted from cm to m
             vstar = meanColumnVelocity / (5.75 * np.log10(12.27 * R / k)) # Stream Hydrology: An Introduction for Ecologists eqn 6.50
             return 5.75 * np.log10(30 * H / k) * vstar # Hayes et al 2007 eqn 1
         elif velocityProfileMethod == 1: # uniform water velocity throughout

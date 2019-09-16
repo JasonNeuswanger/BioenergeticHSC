@@ -15,6 +15,9 @@
     using
     http: // pyqt.sourceforge.net / Docs / pyqtdeploy / command_line.html  # pyqtdeploy
 
+    ** NOTE, current versions are compiled using Pyinstaller (development version: available at: https://www.pyinstaller.org/downloads.html)
+    To compile, set to correct python environment and directory, then run "pyinstaller main.spec" from the command line
+
     """
 
 if __name__ == '__main__':

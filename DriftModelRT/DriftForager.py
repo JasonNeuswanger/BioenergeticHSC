@@ -23,10 +23,10 @@ class DriftForager(object):
         self.reactionDistanceMultiplier = reactionDistanceMultiplier  # allows reduction in reaction distance as compared to lab experiments, values 0.01 to 1.0, default 1.0 (no effect)
         self.focalVelocityScaler = focalVelocityScaler  # Reduces velocity in focal swimming cost calculations, values 0.01 to 1, default to 1 (no effect)
         self.velocityProfileMethod = velocityProfileMethod  # logarithmic or uniform
-        self.swimmingCostSubmodel = swimmingCostSubmodel 
-        self.turbulenceAdjustment = turbulenceAdjustment
-        self.assimilationMethod = assimilationMethod
-        self.roughness = roughness
+        self.swimmingCostSubmodel = swimmingCostSubmodel # the swimming cost model specified by the user
+        self.turbulenceAdjustment = turbulenceAdjustment # whether focal velocity is adjusted for turbulence (default is on)
+        self.assimilationMethod = assimilationMethod # the energy assimilation method selected
+        self.roughness = roughness # the roughness height in cm
         self.optimalVelocity = 17.6 * self.mass ** 0.05  # optimal swimming velocity from Stewart et al 1983 via Rosenfeld and Taylor 2009
         self.status("Initialized the DriftForager object.")
         
@@ -34,7 +34,7 @@ class DriftForager(object):
         """ This filters prey types to sizes appropriate to the current fish given its mouth gape and gill raker limitations. It's based on
             equations from Wankowski (1979) as adapted by Hayes et al (2000) and used by Hayes et al (2016) with some adjustments for the prey
             length:diameter ratio of 4.3, which I don't quite understand -- might be good to ask John exactly what that means. They appear to
-            use meters for fork length, but the formulas only make sense if fork length is expressed in centimters as we do here. 
+            use meters for fork length, but the formulas only make sense if fork length is expressed in centimeters as we do here.
             Following Hughes et al 2003 and Hayes et al 2000, prey classes are excluded altogether if they do not fit within anatomical constraints.
             And if a prey class is partially within and partially outside the constraints, its drift density is adjusted to the proportion that
             falls within the constraints, and its size, energy, etc, are adjusted to reflect that proportion.
@@ -83,7 +83,7 @@ class DriftForager(object):
     def reactionDistance(self, preyType):
         """ Reaction distance in cm based on prey length (mm) and fish's fork length (cm). The baseReactionDistance equation
             comes from Hughes & Dill (1990). The turbidity adjustment is from Hayes et al 2016, based on a curve given by Gregory 
-            and Northcote 1993. The GN93 curve was for reaction distance of juvenile Chinook salmon. Hayes et al 2016 divided it
+            and Northcote (1993). The GN93 curve was for reaction distance of juvenile Chinook salmon. Hayes et al 2016 divided it
             by its maximum value (36) to turn it from a literal reaction distance to a turbidity multiplier. I added a point that 
             if turbidity is extremely low (before about 0.47) the turbidity is set to a value that would make this multiplier equal
             to 1 to a very high precision, i.e. turbidity has no effect. Without this cuttoff, setting turbidity = 0 to just ignore
@@ -97,13 +97,13 @@ class DriftForager(object):
     @functools.lru_cache(maxsize=2048)
     def maximumCaptureDistance(self, preyType, waterVelocity):
         """ Maximum distance (measured in cm in the plane perpendicular to the focal point) at which the fish can capture prey.  
-            Source: Hughes & Dill 1990 *THIS FUNCTION IS CURRENTLY NOT USED IN THE PROGRAM - see manual for explanation"""
+            Source: Hughes & Dill 1990 * NOTE THAT THIS FUNCTION IS CURRENTLY NOT USED IN THE PROGRAM - see manual for explanation"""
         rd = self.reactionDistance(preyType)
         return np.sqrt(rd**2 - (waterVelocity * rd/self.maximumSustainableSwimmingSpeed)**2)
         
     @functools.lru_cache(maxsize=32768)
     def captureSuccess(self, preyType, waterVelocity, preyDistance):
-        """" Both methods are given in Rosenfeld & Taylor 2009, based on data from Hill & Grossman 1993 """
+        """" Logistic regression from Rosenfeld & Taylor 2009, based on data from Hill & Grossman 1993 """
         V = waterVelocity
         d = preyDistance
         RD = self.reactionDistance(preyType)
@@ -183,7 +183,9 @@ class DriftForager(object):
 
 
     def swimmingCostTrudelWelchSockeye(self, velocity):
-        """Calculates swimming cost based on sockeye parameters from regression from Trudel and Welch (2005). Note that swimming costs and SMR are calculated separately"""
+        """the remaining functions are from Trudel and Welch (2005), who use an additive approach to model the energy costs
+        of swimming (additional to SMR)
+        """
         oq = 14.1  # oxycaloric equivalent in units (j*mgO2) taken as 14.1 from Videler 1993
         smr = (1 / 3600.0) * oq * np.exp(-2.94 + (0.87 * np.log(self.mass)) + (0.064 * self.waterTemperature))  ## SMR
         sc = (1 / 3600.0) * oq * np.exp(-6.25 + (0.72 * np.log(self.mass)) + (1.60 * np.log(velocity)))  ## Swimming costs
@@ -266,7 +268,7 @@ class DriftForager(object):
             return proportionAssimilated
         elif assimilationMethod == 3:
             """ The same bioenergetics model but with parameters for rainbow trout from Railsback and Rose 1999 and Rand 1993. If we ever want to incorporate a wider array of species/parameters
-            then this should be coded more elegantly. """
+            then this should be coded more efficiently. """
             # Convert energy intake rate in J/s to consumption in g /g /day based on assumed 5200 cal/g and 4.184 J/calorie = 21757 J/g dry mass,
             # followed by wet mass = 6 * dry mass (Waters 1977, p. 115, Table I), giving 3626 J/g wet mass.
             C = (energyIntakeRate / 3626) * (60 * 60 * 24) / self.mass  # specific consumption rate in g /g /day
@@ -325,7 +327,7 @@ class DriftForager(object):
             calculated here are totals across all prey types and grid cells per unit (second) of searching time. """
         if self.turbulenceAdjustment == 0: # No turbulence adjustment applied
             totalFocalSwimmingCost = self.swimmingCost(CalculationGrid.velocityAtDepth(self.velocityProfileMethod, self.focalDepth(waterDepth), waterDepth, meanColumnVelocity, self.roughness))
-        elif self.turbulenceAdjustment == 1: # Webb (1991) factor applied to increase costs due to unsteady swimming in turbulent flows
+        elif self.turbulenceAdjustment == 1: # Webb (1991) factor applied to increase costs due to unsteady focal swimming in turbulent flows
             totalFocalSwimmingCost = self.swimmingCost(np.sqrt(3*CalculationGrid.velocityAtDepth(self.velocityProfileMethod, self.focalDepth(waterDepth), waterDepth,meanColumnVelocity, self.roughness)**2))
         totalEnergyIntake = 0
         totalCaptureManeuverCost = 0
