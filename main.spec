@@ -56,6 +56,7 @@ if sys.platform == 'win32' or sys.platform == 'win64' or sys.platform == 'linux'
              cipher=block_cipher)
     exe = EXE(pyz,
           a.scripts,
+          [('W ignore', None, 'OPTION')],
           a.binaries,
           a.zipfiles,
           a.datas,
