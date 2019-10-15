@@ -340,7 +340,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             turbidity = float(row[7])
                         except ValueError:  # otherwise use the turbidity from the main window
                             turbidity = self.currentForager.turbidity
-                        if row[7] != "":
+                        if row[8] != "":
                             if os.path.isfile(row[8]):
                                 customDriftFile = row[8]
                             else:
