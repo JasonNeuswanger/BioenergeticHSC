@@ -7,8 +7,8 @@ block_cipher = None
 if sys.platform == 'darwin':
     a = Analysis(['main.py'],
              pathex=['./BioenergeticHSC'],
-             datas=[('./MainUi.ui', '.')],
              binaries=[],
+             datas=[('./MainUi.ui', '.')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -29,14 +29,13 @@ if sys.platform == 'darwin':
           debug=True,
           bootloader_ignore_signals=False,
           strip=False,
-          upx=False,
-          console=True)
+          upx=True,
+          console=False)
     app = BUNDLE(exe,
             name='BioenergeticHSC.app',
             icon=None,
-            bundle_identifier=None,
             info_plist={
-        'NSHighResolutionCapable': 'True'
+                'NSHighResolutionCapable': 'True'
                 },
             )
 if sys.platform == 'win32' or sys.platform == 'win64' or sys.platform == 'linux':
