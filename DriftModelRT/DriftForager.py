@@ -150,7 +150,6 @@ class DriftForager(object):
         elif self.swimmingCostSubmodel == 4:
             return self.swimmingCostTrudelWelchChinook(velocity * self.focalVelocityScaler)
 
-
     def swimmingCostHayesEtAl(self, velocity):
         """ Based on Hayes et al 2016, which is based mainly on parameters for brown trout from Elliott (1976) and rainbow trout from 
             Rand et al (1993). Note that this equation appears correctly in Hayes et al 2016, but an incorrect version of the same equation
@@ -161,7 +160,6 @@ class DriftForager(object):
         b2 = 0.192 if self.waterTemperature < 7.1 else 0.094
         b3 = 2.34
         return a * self.mass**b1 * np.exp(b2*self.waterTemperature) * np.exp(b3*0.01*velocity) * 4.1868 / 86400
-    
 
     def swimmingCostHayesRainbow(self, velocity):
         """ An updated version of Hayes et al. (2016) with parameters for rainbow trout, used in Dodrill et al. (2016)."""
@@ -178,10 +176,6 @@ class DriftForager(object):
         Rs = RA * (self.mass ** RB) * Rs_FT * self.mass * 3240 ## SMR (e.g., costs at 0 velocity) - cal/day
         SC = (Rs * np.exp(0.0234 * velocity)) / 24 ## swimming costs per hour - velocity input is in cm/s
         return SC * 4.184 * (1/3600.0) ## Return swimming cost in Joules per second
-
-
-
-
 
     def swimmingCostTrudelWelchSockeye(self, velocity):
         """the remaining functions are from Trudel and Welch (2005), who use an additive approach to model the energy costs

@@ -245,14 +245,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.foragerIsConfigured = True
         
     def runModel(self, shouldShowPlots=True, shouldConfigureForager=True):
+        if not os.path.exists(self.leDriftDensityFile.text()):
+            self.alertBox("You must specify a valid drift density file location before you can run the model. An example is in the 'resources' folder.")
+            return
         self.status("Running model...")
         if shouldConfigureForager: self.configureForager()
         self.depthInterval = int(self.leIntervalDepth.text())
         self.velocityInterval = int(self.leIntervalVelocity.text())
         maxDepth = int(self.leMaxDepth.text())
         maxVelocity = int(self.leMaxWaterVelocity.text())
-        depths = np.arange(self.depthInterval,maxDepth+0.0001,self.depthInterval) # numpy.arange excludes the max value given, so we add 0.0001 to include maxDepth, etc.
-        velocities = np.arange(self.velocityInterval,maxVelocity+0.0001,self.velocityInterval)
+        depths = np.arange(self.depthInterval, maxDepth+0.0001, self.depthInterval) # numpy.arange excludes the max value given, so we add 0.0001 to include maxDepth, etc.
+        velocities = np.arange(self.velocityInterval, maxVelocity+0.0001, self.velocityInterval)
         dg, vg = np.meshgrid(depths, velocities)
         dv = np.array([dg.flatten(), vg.flatten()]).T
         self.status("Calculating NREI for {0} depth/velocity combinations.".format(len(dv)))
@@ -307,7 +310,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.currentResult.showDefaultCurves()
             
     def runBatchMethod1(self):
+        if not os.path.exists(self.leDriftDensityFile.text()):
+            self.alertBox("You must specify a valid drift density file location before you can run the model. An example is in the 'resources' folder.")
+            return
         inFilePath = self.leBatchMethod1File.text()
+        if not os.path.exists(inFilePath):
+            self.alertBox("You must specify a valid batch method 2 input file before you can run the model. An example is in the 'resources' folder.")
+            return
         outFilePath = QtWidgets.QFileDialog.getSaveFileName(self, "Choose a name and location for the output CSV file", os.path.expanduser("~"), ".csv")[0]
         if outFilePath == '':
             self.status("Canceled batch method 1 process because no output file was selected.")
@@ -432,7 +441,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.status("Saved batch processing results to {0}.".format(outFilePath))
 
     def runBatchMethod2(self):
+        if not os.path.exists(self.leDriftDensityFile.text()):
+            self.alertBox("You must specify a valid drift density file location before you can run the model. An example is in the 'resources' folder.")
+            return
         inFilePath = self.leBatchMethod2File.text()
+        if not os.path.exists(inFilePath):
+            self.alertBox("You must specify a valid batch method 2 input file before you can run the model. An example is in the 'resources' folder.")
+            return
         outFolderPath = QtWidgets.QFileDialog.getExistingDirectory(self, "Choose a folder for the output CSV files", os.path.expanduser("~"), QtWidgets.QFileDialog.ShowDirsOnly)
         if outFolderPath == '':
             self.status("Canceled batch method 2 process because no output folder was selected.")
@@ -535,3 +550,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def clearStatusLog(self):
         self.statusText.clear()
+
+    def alertBox(self, alertText):
+        msgBox = QtWidgets.QMessageBox()
+        msgBox.setIcon(QtWidgets.QMessageBox.Information)
+        msgBox.setText(alertText)
+        msgBox.setWindowTitle("Error")
+        msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msgBox.exec()
