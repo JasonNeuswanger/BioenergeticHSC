@@ -41,9 +41,9 @@ if sys.platform == 'darwin':
 if sys.platform == 'win32' or sys.platform == 'win64' or sys.platform == 'linux':
     a = Analysis(['main.py'],
              pathex=['.\BioenergeticHSC'],
-             datas=[('\MainUi.ui', '.')],
+             datas=[('.\MainUi.ui', '.')],
              binaries=[],
-             hiddenimports=[],
+             hiddenimports=['pkg_resources.py2_warn'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],
