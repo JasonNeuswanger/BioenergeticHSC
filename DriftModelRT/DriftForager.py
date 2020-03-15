@@ -338,7 +338,7 @@ class DriftForager(object):
         totalPreyEncountered = 0
         totalReactionDistance = 0
         for preyType in self.preyTypes:
-            grid = CalculationGrid(preyType, self.reactionDistance(preyType), self.focalDepth(waterDepth), waterDepth, meanColumnVelocity, self.velocityProfileMethod, gridSize, self.roughness)
+            grid = CalculationGrid(self.reactionDistance(preyType), self.focalDepth(waterDepth), waterDepth, meanColumnVelocity, self.velocityProfileMethod, gridSize, self.roughness)
             preyType.ingestionCount = 0
             for cell in grid.cells:
                 cell.captureSuccess = self.preyDetectionProbability * self.captureSuccess(preyType, cell.velocity, cell.distance)

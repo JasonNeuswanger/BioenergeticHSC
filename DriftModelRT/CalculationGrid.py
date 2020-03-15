@@ -39,7 +39,7 @@ class CalculationGrid(object):
 
     @staticmethod
     @functools.lru_cache(maxsize=2048)
-    def constructCells(preyType, reactionDistance, focalDepth, waterDepth, meanColumnVelocity, velocityProfileMethod, userGridSize, roughness):
+    def constructCells(reactionDistance, focalDepth, waterDepth, meanColumnVelocity, velocityProfileMethod, userGridSize, roughness):
         """ This method builds the grid cells. It really contains everything we want to do in __init__, but it has to be 
             abstracted out of __init__ so we can memoize previously calculated results with lru_cache, which vastly speeds
             up the program's calculation of the full model."""
@@ -61,8 +61,8 @@ class CalculationGrid(object):
             cells.append(GridCell(distance,velocity,rectArea))
         return cells
             
-    def __init__(self, preyType, reactionDistance, focalDepth, waterDepth, meanColumnVelocity, velocityProfileMethod, userGridSize, roughness):
-        self.cells = CalculationGrid.constructCells(preyType, reactionDistance, focalDepth, waterDepth, meanColumnVelocity, velocityProfileMethod, userGridSize, roughness)
+    def __init__(self, reactionDistance, focalDepth, waterDepth, meanColumnVelocity, velocityProfileMethod, userGridSize, roughness):
+        self.cells = CalculationGrid.constructCells(reactionDistance, focalDepth, waterDepth, meanColumnVelocity, velocityProfileMethod, userGridSize, roughness)
         
 class GridCell(object):
     """ For now, this class is really just a glorified data type to hold information about each cell. """
