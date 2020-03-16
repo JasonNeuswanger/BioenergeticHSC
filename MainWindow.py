@@ -41,7 +41,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnDriftDensityFile.clicked.connect(lambda: self.chooseFile('drift density'))
         self.btnBatchMethod1File.clicked.connect(lambda: self.chooseFile('batch method 1'))
         self.btnBatchMethod2File.clicked.connect(lambda: self.chooseFile('batch method 2'))
-        self.btnRunModel.clicked.connect(lambda: self.runModel(shouldShowPlots=True, shouldConfigureForager=True))
+        self.btnRunModel.clicked.connect(lambda: self.runModel(shouldShowPlots=True, shouldConfigureForager=True, gotPreyTypesFromBatchFile=False))
         self.btnRunModelOnBatchMethod1.clicked.connect(self.runBatchMethod1)
         self.btnRunModelOnBatchMethod2.clicked.connect(self.runBatchMethod2)
         self.btnShowDefaultCurves.clicked.connect(self.showDefaultCurves)
@@ -223,7 +223,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if filePath != "": self.status("Set {0} file to {1}.".format(whichFile, filePath))
         
     def configureForager(self):
-        preyTypes = PreyType.loadPreyTypes(self.leDriftDensityFile.text(), self)
+        preyTypes = PreyType.loadPreyTypes(self.leDriftDensityFile.text(), self) if os.path.exists(self.leDriftDensityFile.text()) else None
         self.modelGridSize = int(self.leModelGridSize.text())
         self.currentForager = DriftForager(self,
                                 preyTypes,
@@ -244,9 +244,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                 )
         self.foragerIsConfigured = True
         
-    def runModel(self, shouldShowPlots=True, shouldConfigureForager=True):
-        if not os.path.exists(self.leDriftDensityFile.text()):
-            self.alertBox("You must specify a valid drift density file location before you can run the model. An example is in the 'resources' folder.")
+    def runModel(self, shouldShowPlots=True, shouldConfigureForager=True, gotPreyTypesFromBatchFile=False):
+        if not os.path.exists(self.leDriftDensityFile.text()) and not gotPreyTypesFromBatchFile:
+            self.alertBox("Cannot run the model without prey types specified in either the inputs tab or batch input files.")
             return
         self.status("Running model...")
         if shouldConfigureForager: self.configureForager()
@@ -310,9 +310,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.currentResult.showDefaultCurves()
             
     def runBatchMethod1(self):
-        if not os.path.exists(self.leDriftDensityFile.text()):
-            self.alertBox("You must specify a valid drift density file location before you can run the model. An example is in the 'resources' folder.")
-            return
         inFilePath = self.leBatchMethod1File.text()
         if not os.path.exists(inFilePath):
             self.alertBox("You must specify a valid batch method 2 input file before you can run the model. An example is in the 'resources' folder.")
@@ -362,6 +359,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if len(inputs) == 0:
                 self.statusError("Batch method 1 input file did not contain any rows.")
             else:
+                if customDriftFile is None and not os.path.exists(self.leDriftDensityFile.text()):
+                    self.alertBox("No drift density file was specified in either the batch specification file or the inputs tab.")
+                    return
                 self.status("Calculating NREI for {0} rows of the batch method 1 input file.".format(len(inputs)))
                 maxNetRateOfEnergyIntake = -100000
                 results = []
@@ -441,9 +441,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.status("Saved batch processing results to {0}.".format(outFilePath))
 
     def runBatchMethod2(self):
-        if not os.path.exists(self.leDriftDensityFile.text()):
-            self.alertBox("You must specify a valid drift density file location before you can run the model. An example is in the 'resources' folder.")
-            return
         inFilePath = self.leBatchMethod2File.text()
         if not os.path.exists(inFilePath):
             self.alertBox("You must specify a valid batch method 2 input file before you can run the model. An example is in the 'resources' folder.")
@@ -454,6 +451,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             inputs = []
             self.configureForager()
+            hasCustomDriftFiles = False
             with open(inFilePath, newline='') as csvFile:
                 reader = csv.reader(csvFile)
                 next(reader, None)  # skip the header row
@@ -473,6 +471,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         if row[5] != "":
                             if os.path.isfile(row[5]):
                                 customDriftFile = row[5]
+                                hasCustomDriftFiles = True
                             else:
                                 customDriftFile = None
                         else:
@@ -483,6 +482,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if len(inputs) == 0:
                 self.statusError("Batch method 2 input file did not contain any rows.")
             else:
+                if not hasCustomDriftFiles and not os.path.exists(self.leDriftDensityFile.text()):
+                    self.alertBox("No drift density file was specified in either the batch specification file or the inputs tab.")
+                    return
                 self.status("Calculating NREIs for {0} rows of the batch method 2 input file.".format(len(inputs)))
                 for row in inputs:
                     label, forkLength, mass, temperature, turbidity, customDriftFile = row
@@ -495,7 +497,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.currentForager.filterPreyTypes(PreyType.loadPreyTypes(customDriftFile, self))
                     self.status("Running model for temperature {0}".format(self.currentForager.waterTemperature))
                     self.currentForager.clear_caches()
-                    self.runModel(shouldShowPlots=False, shouldConfigureForager=False)
+                    self.runModel(shouldShowPlots=False, shouldConfigureForager=False, gotPreyTypesFromBatchFile=hasCustomDriftFiles)
                     self.currentResult.exportSpreadsheet(os.path.join(outFolderPath, "{0} (length {1:.2f} -- mass {2:.2f} -- temp {3:.2f}).csv".format(label, forkLength, mass, temperature)))
                 self.status("Saved batch processing results to {0}.".format(outFolderPath))
 

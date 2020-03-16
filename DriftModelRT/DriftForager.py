@@ -13,7 +13,8 @@ class DriftForager(object):
         self.ui = ui                               # the main program user interface; should be minimally referenced here except to send status messages
         self.mass = mass                           # mass in grams
         self.forkLength = forkLength               # fork length in cm
-        self.filterPreyTypes(preyTypes)            # array of PreyType objects, filtered based on mouth gape / gill raker limitations
+        if preyTypes is not None:                  # pass preyTypes = None to initialize the forager and set prey types later, i.e. for batch runs with different prey type files
+            self.filterPreyTypes(preyTypes)        # array of PreyType objects, filtered based on mouth gape / gill raker limitations
         self.waterTemperature = waterTemperature   # water temperature in degrees C
         self.turbidity = turbidity                 # turbidity in NTUs
         self.focalDepthSpec = focalDepthSpec       # the number the user specified for the focal depth
