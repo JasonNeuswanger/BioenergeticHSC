@@ -15,8 +15,8 @@ if __name__ == '__main__':
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     from MainWindow import MainWindow
     from PyQt5 import QtWidgets, QtCore
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = QtWidgets.QApplication(sys.argv)
-    app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     main = MainWindow(app)
     main.show()
     sys.exit(app.exec_())

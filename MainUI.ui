@@ -37,8 +37,20 @@
           <height>617</height>
          </size>
         </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="tabShape">
+         <enum>QTabWidget::Rounded</enum>
+        </property>
         <property name="currentIndex">
          <number>0</number>
+        </property>
+        <property name="documentMode">
+         <bool>false</bool>
         </property>
         <widget class="QWidget" name="tab_Model_Settings">
          <attribute name="title">
@@ -920,7 +932,7 @@
                 <rect>
                  <x>0</x>
                  <y>-2</y>
-                 <width>445</width>
+                 <width>473</width>
                  <height>291</height>
                 </rect>
                </property>
@@ -935,16 +947,6 @@
                   </property>
                   <property name="text">
                    <string>Depth for velocity plot (cm)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0" colspan="3">
-                 <widget class="QPushButton" name="btnShowDefaultCurves">
-                  <property name="toolTip">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default depth for the velocity plot is the largest depth available, so the velocity plot shows the velocity relationship when depth is not an issue or is minimally an issue.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The default velocity for the depth plot is the velocity at which habitat suitability was maximized in the depth plot.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                  <property name="text">
-                   <string>Set curves to default depth/velocity values</string>
                   </property>
                  </widget>
                 </item>
@@ -1083,7 +1085,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1" colspan="2">
+                <item row="2" column="1">
                  <widget class="QComboBox" name="cbResponseVariableToPlot">
                   <item>
                    <property name="text">
@@ -1157,6 +1159,16 @@
                   </item>
                  </widget>
                 </item>
+                <item row="3" column="0" colspan="2">
+                 <widget class="QPushButton" name="btnShowDefaultCurves">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default depth for the velocity plot is the largest depth available, so the velocity plot shows the velocity relationship when depth is not an issue or is minimally an issue.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The default velocity for the depth plot is the velocity at which habitat suitability was maximized in the depth plot.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="text">
+                   <string>Set curves to default depth/velocity values</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </widget>
@@ -1207,105 +1219,146 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>250</y>
-            <width>851</width>
-            <height>221</height>
+            <y>10</y>
+            <width>841</width>
+            <height>568</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QLabel" name="label_28">
-             <property name="maximumSize">
-              <size>
-               <width>831</width>
-               <height>185</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Batch method 2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Unlike method 1, this method doesn't take depths and velocities from the input file, but instead uses the ranges of depth and velocity specified in the Model Settings tab and generates a separate CSV output file for each row of the input file. Each output file contains NREI values (J/s) for every depth  (cm) and velocity (cm/s) within the specified range/intervals, similar to the output from &amp;quot;Depth and Velocity Response Spreadsheet&amp;quot; under the &amp;quot;Export&amp;quot; menu. Each row of the input file must specify fish fork length and mass, and it can optionally specify temperature and a different drift density CSV file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <layout class="QVBoxLayout" name="verticalLayout_2">
              <item>
-              <widget class="QLineEdit" name="leBatchMethod2File">
-               <property name="readOnly">
+              <widget class="QLabel" name="label_27">
+               <property name="maximumSize">
+                <size>
+                 <width>831</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Batch method 1&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This method reads ia CSV file in which each row contains a label, depth, velocity, and optionally a different mass, length, and/or a different drift density file from the ones specified under the Model Settings tab. It outputs a CSV containing a results for each row of the input file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="wordWrap">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="btnBatchMethod2File">
+              <layout class="QHBoxLayout" name="horizontalLayout_7">
+               <item>
+                <widget class="QLineEdit" name="leBatchMethod1File">
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btnBatchMethod1File">
+                 <property name="text">
+                  <string>Batch method 1 specification file</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnRunModelOnBatchMethod1">
                <property name="text">
-                <string>Batch method 2 specification file</string>
+                <string>Run model for method 1 batch specification file</string>
                </property>
               </widget>
              </item>
             </layout>
            </item>
            <item>
-            <widget class="QPushButton" name="btnRunModelOnBatchMethod2">
-             <property name="text">
-              <string>Run model for method 2 batch specification file</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="layoutWidget">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>21</y>
-            <width>851</width>
-            <height>191</height>
-           </rect>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <widget class="QLabel" name="label_27">
-             <property name="maximumSize">
-              <size>
-               <width>831</width>
-               <height>100</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Batch method 1&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This method reads in a CSV file in which each row contains a label, depth, velocity, and optionally a different mass, length, and/or a different drift density file from the ones specified under the Model Settings tab. It outputs a CSV file containing an NREI and related results for each row of the input file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <layout class="QVBoxLayout" name="verticalLayout_6">
              <item>
-              <widget class="QLineEdit" name="leBatchMethod1File">
-               <property name="readOnly">
+              <widget class="QLabel" name="label_32">
+               <property name="maximumSize">
+                <size>
+                 <width>831</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Batch method 2&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This method uses the ranges of depth and velocity specified in the Model Settings tab and generates a separate CSV output file for each row of the input file. Each output file contains NREI values (J/s) for every depth (cm) and velocity (cm/s) within the specified range/intervals, similar to the output from &amp;quot;Depth and Velocity Response Spreadsheet&amp;quot; under the &amp;quot;Export&amp;quot; menu. Each row of the input file must specify fish fork length and mass, and it can optionally specify temperature and a different drift density CSV file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="wordWrap">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="btnBatchMethod1File">
+              <layout class="QHBoxLayout" name="horizontalLayout_16">
+               <item>
+                <widget class="QLineEdit" name="leBatchMethod2File">
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btnBatchMethod2File">
+                 <property name="text">
+                  <string>Batch method 2 specification file</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnRunModelOnBatchMethod2">
                <property name="text">
-                <string>Batch method 1 specification file</string>
+                <string>Run model for method 2 batch specification file</string>
                </property>
               </widget>
              </item>
             </layout>
            </item>
            <item>
-            <widget class="QPushButton" name="btnRunModelOnBatchMethod1">
-             <property name="text">
-              <string>Run model for method 1 batch specification file</string>
-             </property>
-            </widget>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <item>
+              <widget class="QLabel" name="label_31">
+               <property name="maximumSize">
+                <size>
+                 <width>831</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Batch method 3&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This method is identical to batch method 1 except that points are specified on transects, allowing lateral variations in depth and velocity to be taken into account in the computation grid for each fish.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_15">
+               <item>
+                <widget class="QLineEdit" name="leBatchMethod3File">
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btnBatchMethod3File">
+                 <property name="text">
+                  <string>Batch method 3 specification file</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnRunModelOnBatchMethod3">
+               <property name="text">
+                <string>Run model for method 3 batch specification file</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -1344,7 +1397,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDrift_Foraging_Habitat_Suitability">

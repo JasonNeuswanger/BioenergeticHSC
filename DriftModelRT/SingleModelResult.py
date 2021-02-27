@@ -38,4 +38,33 @@ class SingleModelResult(object):
             the maximum won't necessarily be 1. This might mess with some applications that require a 2-D curve with a maximum of 1, and they should be advised 
             in the user manual to re-standardize whatever particular row or column of the output spreadsheet they're using for such an application. ''' 
         self.standardizedSuitability = self.netRateOfEnergyIntake / maxNetRateOfEnergyIntake
-        
+
+class EmptySingleModelResult:
+
+    def __init__(self, depth, velocity, preyTypes):
+        """ Placeholder for batch 3 results calculated on the input points defined at the edges of the grid, with depth/velocity 0. The fish
+            can't actually occupy these, but they have to be included in the grid to define the conditions between the edges and adjacent points.
+            Only their positionOnTransect is actually important."""
+        self.depth = depth
+        self.velocity = velocity
+        self.meanReactionDistance = np.nan
+        self.grossRateOfEnergyIntake = 0
+        self.captureManeuverCostRate = 0
+        self.focalSwimmingCostRate = 0
+        self.proportionOfTimeSpentHandling = 0
+        self.totalEnergyCostRate = 0
+        self.netRateOfEnergyIntake = 0
+        self.ingestionRate = 0
+        self.encounterRate = 0
+        self.meanPreyEnergyValue = np.nan
+        self.captureSuccess = np.nan
+        self.preyTypes = preyTypes
+        self.numPreyTypes = len(preyTypes)
+        self.proportionAssimilated = np.nan
+        for preyType in self.preyTypes: preyType.ingestionRate = 0
+        self.pointLabel = None  # for temporary storage of point label when processing from a batch file
+        self.standardizedSuitability = 0
+
+    def standardizeSuitability(self, dummyNREI):
+        """ Exists so results from this class can be treated the same as for normal results in the rest of the code."""
+        self.standardizedSuitability = 0

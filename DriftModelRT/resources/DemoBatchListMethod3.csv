@@ -1,0 +1,30 @@
+Label,Depth,Velocity,Transect,PositionOnTransect,Roughness,ForkLength,Mass,Temperature,Turbidity,DriftFile,Notes
+1,0,0,1,0,,,,,,,Column A is an arbitrary index number (or text label) of the point to be processed
+2,20,18,1,0.5,,,,,,,Column B is the depth at that point (cm)
+3,35,36,1,1,,,,,,,Column C is the velocity at that point (cm/s)
+4,45,49,1,1.5,,,,,,,"Column D is arbitrary numeric or text label for each transect. It can represent the longitudinal position of the transect, but it doesn't have to, because that information isn't used here."
+5,43,46,1,2,,,,,,,Column E is the position (in meters) of a the point this row represents along its transect. First and last points will be interpreted as the edges of the river and can have 0 depth/velocity.
+6,40,42,1,2.5,,,,,,,Column F is bed roughness height (cm) for a log velocity profile
+7,10,7,1,3,,,,,,,Column G is fork length (cm); is ignored unless mass is also specified
+8,0,0,1,3.5,,,,,,,Column H is mass (g); is ignored unless fork length is also specified
+9,0,0,2,0,,,,,,,Column I is for temperature in degrees C
+10,25,24,2,0.75,,,,,,,Column J is turbidity in NTU
+11,50,56,2,1.5,,,,,,,Column K is the address for the drift density CSV file
+12,60,70,2,2.25,,,,,,,"Columns F-K are optional, but don't delete the columns or their headers; just leave the cells blank if you don't want to specify them"
+13,65,78,2,3,,,,,,,"If you leave an optional column blank, it will default to the values specified on the Model Settings tab"
+14,45,49,2,3.75,,,,,,,
+15,15,12,2,4.5,,,,,,,
+16,0,0,2,0,,,,,,,
+17,0,0,3,0.5,,,,,,,
+18,10,7,3,1,,,,,,,
+19,20,18,3,1.5,,,,,,,
+20,25,24,3,2,,,,,,,
+21,30,30,3,2.5,,,,,,,
+22,20,18,3,3,,,,,,,
+23,5,3,3,3.5,,,,,,,
+24,0,0,3,0,,,,,,,
+25,0,0,4,0,,,,,,,"Weird transect 4 is meant a a test of the transect modeling mechanism, set up such that the interpolated "
+26,25,25,4,0.5,,,,,,,depths and velocities in the middle of the transect (PositionOnTransect=20) should be 
+27,25,25,4,20,,,,,,,uniform at 25 each. This allows comparison of results from that mechanism with results from 
+28,25,25,4,40,,,,,,,a conventional model run at depth=25 and velocity=25. Batch method 1 point labeled 21 has
+30,0,0,4,40.5,,,,,,,these depths and velocities for comparison.
