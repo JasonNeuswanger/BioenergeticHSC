@@ -8,7 +8,7 @@ and handles plotting and exporting of those results.
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from mpl_toolkits.mplot3d import Axes3D # we get a warning message that this is unused, but it actually is necessary for rotating the 3D plot
+from mpl_toolkits.mplot3d import Axes3D  # we get a warning message that this is unused, but it actually is necessary for rotating the 3D plot
 from matplotlib import cm
 from scipy.interpolate import griddata
 from PyQt5.QtWidgets import QSpacerItem
@@ -28,13 +28,13 @@ class ModelSetResult(object):
             if type(itemToDelete) is not QSpacerItem: 
                 itemToDelete.widget().setParent(None)
     
-    def __init__(self, ui, results, maxNetRateOfEnergyIntake):
+    def __init__(self, ui, results):
         self.ui = ui
         self.results = results
         self.response = 'netRateOfEnergyIntake'
         self.arrangePlotData()
-        self.bestVelocityAtMaxDepth = self.velocities[0] # placeholder
-        self.bestNetRateOfEnergyIntakeAtMaxDepth = self.results[0].netRateOfEnergyIntake # placeholder
+        self.bestVelocityAtMaxDepth = self.velocities[0]  # placeholder
+        self.bestNetRateOfEnergyIntakeAtMaxDepth = self.results[0].netRateOfEnergyIntake  # placeholder
         for result in self.results:
             if result.depth == self.depths.max() and result.netRateOfEnergyIntake > self.bestNetRateOfEnergyIntakeAtMaxDepth:
                 self.bestVelocityAtMaxDepth = result.velocity

@@ -36,7 +36,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__()
         self.setupUi(self)
         self.app = app
-        self.status("Welcome to BioenergeticHSC (version 1.0).")
+        self.status("Welcome to BioenergeticHSC (version 1.1).")
         self.currentResult = None
         self.setDefaults()
         # The line below fixes some weird glitches with the tab colors in QT 5.15.2 running on MacOS 11.2.1.
@@ -292,12 +292,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if shouldShowPlots:
             self.hsDepthForVelocityPlot.setMaximum(maxDepth / self.depthInterval)
             self.hsVelocityForDepthPlot.setMaximum(maxVelocity / self.velocityInterval)
-            self.currentResult = ModelSetResult(self, results, maxNetRateOfEnergyIntake)
+            self.currentResult = ModelSetResult(self, results)
             self.showPlots()
             self.swResultsControls.setCurrentIndex(1)  # Make the sliders/buttons to control the 'Results' plots visible by switching the stacked widget to the non-blank page
             self.mainTabWidget.setCurrentIndex(1)  # Switch user to 'Results' tab
         else:
-            self.currentResult = ModelSetResult(self, results, maxNetRateOfEnergyIntake)
+            self.currentResult = ModelSetResult(self, results)
 
     def showPlots(self):
         responseDict = {0: 'netRateOfEnergyIntake',
