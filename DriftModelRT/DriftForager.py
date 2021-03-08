@@ -319,7 +319,15 @@ class DriftForager(object):
         self.proportionOfEnergyAssimilated.cache_clear()
         self.captureSuccess.cache_clear()
 
-    def runForagingModel(self, waterDepth, meanColumnVelocity, gridSize=10, transectInterpolations=None):
+    def runForagingModel(self, waterDepth, meanColumnVelocity, shouldOptimizeDiet, gridSize=10, transectInterpolations=None):
+        """ This wrapper function simply calls the correct function from the two below based on whether diet optimization
+            is allowed (which is more computationally expensive) or not."""
+        if shouldOptimizeDiet:
+            return self.runForagingModelWithDietOptimization(waterDepth, meanColumnVelocity, gridSize, transectInterpolations)
+        else:
+            return self.runForagingModelWithFixedDiet(waterDepth, meanColumnVelocity, gridSize, transectInterpolations)
+
+    def runForagingModelWithFixedDiet(self, waterDepth, meanColumnVelocity, gridSize, transectInterpolations):
         """ Calculates net rate of energy intake and lots of other internal/diagnostic measures. The 'total' variables
             calculated here are totals across all prey types and grid cells per unit (second) of searching time.
              """
@@ -356,7 +364,7 @@ class DriftForager(object):
         totalAssimilableEnergyIntake = totalEnergyIntake * proportionAssimilated
         return SingleModelResult(waterDepth, meanColumnVelocity, self.preyTypes, totalHandlingTime, totalAssimilableEnergyIntake, totalReactionDistance, totalPreyEncountered, totalPreyIngested, totalCaptureManeuverCost, totalFocalSwimmingCost, proportionAssimilated)
 
-    def runForagingModelWithDietOptimization(self, waterDepth, meanColumnVelocity, gridSize, transectInterpolations=None):
+    def runForagingModelWithDietOptimization(self, waterDepth, meanColumnVelocity, gridSize, transectInterpolations):
         """ Applies the logic of Charnov's optimal diet model, looping through prey types and discarding them if it
             turns out the NREI would be higher without them than with them. Sometimes, a type might not be removed
             at first, but later removals end up suggesting that removing the earlier one would have been beneficial
@@ -368,14 +376,26 @@ class DriftForager(object):
         while endPreyTypeCount != startPreyTypeCount:
             startPreyTypeCount = len(self.preyTypes)
             for preyType in self.preyTypes:
-                nreiWithPreyType = self.runForagingModel(waterDepth, meanColumnVelocity, gridSize, transectInterpolations).netRateOfEnergyIntake
+                nreiWithPreyType = self.runForagingModelWithFixedDiet(waterDepth, meanColumnVelocity, gridSize, transectInterpolations).netRateOfEnergyIntake
                 self.preyTypes.remove(preyType)  # temporarily remove the prey type
-                nreiWithoutPreyType = self.runForagingModel(waterDepth, meanColumnVelocity, gridSize, transectInterpolations).netRateOfEnergyIntake
+                nreiWithoutPreyType = self.runForagingModelWithFixedDiet(waterDepth, meanColumnVelocity, gridSize, transectInterpolations).netRateOfEnergyIntake
                 if nreiWithPreyType > nreiWithoutPreyType: self.preyTypes.insert(0, preyType)  # put it back in if it was beneficial
             endPreyTypeCount = len(self.preyTypes)
-        result = self.runForagingModel(waterDepth, meanColumnVelocity, gridSize, transectInterpolations)
+        result = self.runForagingModelWithFixedDiet(waterDepth, meanColumnVelocity, gridSize, transectInterpolations)
         self.preyTypes = deepcopy(originalPreyTypes)  # Restore the forager's prey type options for the next model run
         return result
+
+    runForagingModelWithFixedDiet(self, waterDepth, meanColumnVelocity, transectInterpolations=None)
+
+    def runDailyModel(self):
+        """ This function will run the foraging model at 1-hour intervals for an entire day, based on parameters from the
+            Daily Settings tab. """
+        hourly_results = []
+        for hour in range(24):
+            hourly_results.append()
+
+
+
 
     def status(self, message):
         if self.ui is not None:

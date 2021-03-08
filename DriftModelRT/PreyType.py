@@ -2,7 +2,6 @@
 
 import csv
 
-
 class PreyType(object):
 
     @staticmethod
@@ -19,14 +18,12 @@ class PreyType(object):
                     driftDensity = float(row[3])
                     a = float(row[4]) if row[4] != '' else None
                     b = float(row[5]) if row[5] != '' else None
-                    energyDensityCalories = float(row[6]) if row[
-                                                                 6] != '' else 5200  # Default energy density is 5200 cal/gm dry wt, from Rosenfeld and Taylor 2009, derived from Cummins & Wuycheck 1971
+                    energyDensityCalories = float(row[6]) if row[6] != '' else 5200  # Default energy density is 5200 cal/gm dry wt, from Rosenfeld and Taylor 2009, derived from Cummins & Wuycheck 1971
                     dryMass = float(row[7]) if row[7] != '' else None  # In the rare case where dry mass is measured directly
                     preyTypes.append(
                         PreyType(label, minLength, maxLength, driftDensity, energyDensityCalories, a, b, dryMass))
                 except ValueError as err:
-                    message = "Value encountered in drift density file that could not be converted to a number! Skipping a prey type. Error: {0}".format(
-                        err)
+                    message = "Value encountered in drift density file that could not be converted to a number! Skipping a prey type. Error: {0}".format(err)
                     if ui is not None:
                         ui.statusError(message)
                     else:

@@ -279,10 +279,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.pbModelRunProgress.setValue(i)
             self.app.processEvents()  # Forces the progress bar and status window to update with each iteration rather than waiting until the end of the loop.
             depth, velocity = dv[i]
-            if self.ckbOptimizeDiet.isChecked():
-                result = self.currentForager.runForagingModelWithDietOptimization(depth, velocity, self.modelGridSize)
-            else:
-                result = self.currentForager.runForagingModel(depth, velocity, self.modelGridSize)
+            result = self.currentForager.runForagingModel(depth, velocity, self.ckbOptimizeDiet.isChecked(), self.modelGridSize)
             maxNetRateOfEnergyIntake = result.netRateOfEnergyIntake if result.netRateOfEnergyIntake > maxNetRateOfEnergyIntake else maxNetRateOfEnergyIntake
             results.append(result)
             self.status("Calculated NREI = {0:.4f} j/s at depth = {1:.2f} cm and velocity = {2:.2f} cm/s.".format(result.netRateOfEnergyIntake, depth, velocity))
@@ -387,10 +384,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if customDriftFile is not None:
                         self.currentForager.filterPreyTypes(PreyType.loadPreyTypes(customDriftFile, self))
                     self.currentForager.clear_caches()
-                    if self.ckbOptimizeDiet.isChecked():
-                        result = self.currentForager.runForagingModelWithDietOptimization(depth, velocity, self.modelGridSize)
-                    else:
-                        result = self.currentForager.runForagingModel(depth, velocity, self.modelGridSize)
+                    result = self.currentForager.runForagingModel(depth, velocity, self.ckbOptimizeDiet.isChecked(), self.modelGridSize)
                     result.pointLabel = label
                     result.forkLength = forkLength
                     result.mass = mass
@@ -624,10 +618,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.currentForager.clear_caches()
             # Note that depth and velocity passed below end up referencing the focal depth and velocity for this fish, but the
             # values for different prey locations / maneuvers will depend on the transect interpolations.
-            if self.ckbOptimizeDiet.isChecked():
-                result = self.currentForager.runForagingModelWithDietOptimization(depth, velocity, self.modelGridSize, transectInterpolations[transectLabel])
-            else:
-                result = self.currentForager.runForagingModel(depth, velocity, self.modelGridSize, transectInterpolations[transectLabel])
+            result = self.currentForager.runForagingModel(depth, velocity, self.ckbOptimizeDiet.isChecked(), self.modelGridSize, transectInterpolations[transectLabel])
             result.pointLabel = label
             result.transectLabel = transectLabel
             result.positionOnTransect = positionOnTransect
