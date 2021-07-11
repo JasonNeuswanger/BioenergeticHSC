@@ -29,19 +29,15 @@ class ModelSetResult(object):
                 itemToDelete.widget().setParent(None)
     
     def __init__(self, ui, results):
+        if not hasattr(self, 'main_response'):  # Never actually triggered because both subclasses define main_response, but avoids annoying syntax warnings
+            self.main_response = 'netRateOfEnergyIntake'
         self.ui = ui
         self.results = results
-        self.response = 'netRateOfEnergyIntake'
+        self.response = self.main_response  # main_response set in subclasses
         self.arrangePlotData()
-        self.bestVelocityAtMaxDepth = self.velocities[0]  # placeholder
-        self.bestNetRateOfEnergyIntakeAtMaxDepth = self.results[0].netRateOfEnergyIntake  # placeholder
-        for result in self.results:
-            if result.depth == self.depths.max() and result.netRateOfEnergyIntake > self.bestNetRateOfEnergyIntakeAtMaxDepth:
-                self.bestVelocityAtMaxDepth = result.velocity
-                self.bestNetRateOfEnergyIntakeAtMaxDepth = result.netRateOfEnergyIntake
-    
+
     def arrangePlotData(self):
-        self.depths, self.velocities, self.responses = np.array([(result.depth, result.velocity, getattr(result,self.response)) for result in self.results]).T
+        self.depths, self.velocities, self.responses = np.array([(result.depth, result.velocity, getattr(result, self.response)) for result in self.results]).T
     
     def setResponse(self, response):
         self.response = response
@@ -62,7 +58,19 @@ class ModelSetResult(object):
                       'encounterRate'                   : "Prey encounter rate (items/s)",
                       'meanPreyEnergyValue'             : "Mean prey energy value (J)",
                       'numPreyTypes'                    : "Number of prey types in diet",
-                      'proportionAssimilated'           : "Proportion of energy assimilated"}
+                      'proportionAssimilated'           : "Proportion of energy assimilated",
+                      'dailyNetEnergyIntake'            : 'Daily net energy intake (J)',
+                      'dailyGrossEnergyIntake'          : 'Daily gross energy intake (J)',
+                      'dailyRisk'                       : 'Single-day predation risk',
+                      'dailyRiskOn90DayHorizon'         : '90-day equivalent predation risk',
+                      'dailyRiskBalancingMetric'        : 'Risk-balancing fitness metric',
+                      'dailyCost'                       : 'Daily total energy cost (J)',
+                      'dailyFocalSwimmingCost'          : 'Daily focal swimming cost (J)',
+                      'dailyCaptureManeuverCost'        : 'Daily prey capture cost (J)',
+                      'dailyHoursForaging'              : 'Daily hours foraging',
+                      'dailySpecificConsumption'        : 'Daily specific consumption (g/g/day)',
+                      'dailySpecificConsumptionProportional' : 'Proportion of maximum ration'
+                      }
         shortLabels = {'netRateOfEnergyIntake'          : "NREI",
                       'standardizedSuitability'         : "Suitability",
                       'grossRateOfEnergyIntake'         : "GREI",
@@ -76,7 +84,19 @@ class ModelSetResult(object):
                       'encounterRate'                   : "Encounter rate",
                       'meanPreyEnergyValue'             : "Prey value",
                       'numPreyTypes'                    : "Prey types",
-                      'proportionAssimilated'           : "Assimilation"}    
+                      'proportionAssimilated'           : "Assimilation",
+                      'dailyNetEnergyIntake'            : 'DNEI',
+                      'dailyGrossEnergyIntake'          : 'DGEI',
+                      'dailyRisk'                       : 'Risk',
+                      'dailyRiskOn90DayHorizon'         : '90-day risk',
+                      'dailyRiskBalancingMetric'        : 'Risky fitness',
+                      'dailyCost'                       : 'Energy costs',
+                      'dailyFocalSwimmingCost'          : 'Focal cost',
+                      'dailyCaptureManeuverCost'        : 'Maneuver cost',
+                      'dailyHoursForaging'              : 'Hours foraging',
+                      'dailySpecificConsumption'        : 'Specific consumption',
+                      'dailySpecificConsumptionProportional' : 'Bioenergetic P'
+                      }
         if length == 'long':
             return longLabels[self.response]
         elif length == 'short':
@@ -92,7 +112,7 @@ class ModelSetResult(object):
         if whichCurve == 'depth':
             curveResults = [result for result in self.results if result.velocity == otherCurveValue]
             if len(curveResults) == 0: exit("Depth curve requested for invalid velocity.")
-            x, y = np.array([(result.depth, getattr(result,self.response)) for result in curveResults]).T
+            x, y = np.array([(result.depth, getattr(result, self.response)) for result in curveResults]).T
             ax.set_title("Depth response for velocity {0} cm/s".format(otherCurveValue))
             ax.set_xlabel('Water depth (cm)')
             ax.canvas = FigureCanvas(fig)
@@ -119,7 +139,7 @@ class ModelSetResult(object):
         else:
             quit("Invalid curve requested in plotSuitabilityCurve -- should be 'depth' or 'velocity' only.")
         ModelSetResult.clearLayout(layout)
-        layout.addWidget(ax.canvas) # need to clear before adding another widget
+        layout.addWidget(ax.canvas)  # need to clear before adding another widget
         fig.tight_layout(pad=2.5)
         ax.canvas.draw()
         
@@ -130,10 +150,9 @@ class ModelSetResult(object):
         responsePadding = 0.03 * (responses.max() - responses.min())
         if whichLimit == 'min':
             if self.response == 'netRateOfEnergyIntake':
-                return max(responses.min() - responsePadding,-0.2*responses.max()) # truncate NREI plots so extreme negative values don't squish the plots
+                return max(responses.min() - responsePadding, -0.2*responses.max())  # truncate NREI plots so extreme negative values don't squish the plots
             else:
                 return responses.min() - responsePadding
-                
         elif whichLimit == 'max':
                 return responses.max() + responsePadding
         else: 
@@ -158,15 +177,21 @@ class ModelSetResult(object):
             quit("Invalid curve requested in updateSuitabilityCurve -- should be 'depth' or 'velocity' only.")        
         
     def showDefaultCurves(self):
+        self.bestVelocityAtMaxDepth = self.velocities[0]  # placeholder
+        self.bestMainResponseAtMaxDepth = getattr(self.results[0], self.main_response)  # placeholder
+        for result in self.results:
+            if result.depth == self.depths.max() and getattr(result, self.main_response) > self.bestMainResponseAtMaxDepth:
+                self.bestVelocityAtMaxDepth = result.velocity
+                self.bestMainResponseAtMaxDepth = getattr(result, self.main_response)
         self.ui.hsDepthForVelocityPlot.setValue(self.depths.max() / int(self.ui.leIntervalDepth.text()))
         self.ui.hsVelocityForDepthPlot.setValue(self.bestVelocityAtMaxDepth / int(self.ui.leIntervalVelocity.text()))
             
     def plotResponseSurface(self, layout):
         """ Builds the 3D plot of the full depth/velocity relationship. """
         self.responseSurfaceFig = Figure(facecolor='white')
-        canvas = FigureCanvas(self.responseSurfaceFig) # must be created before the add_subplot line
+        canvas = FigureCanvas(self.responseSurfaceFig)  # must be created before the add_subplot line
         ax = self.responseSurfaceFig.add_subplot(111, projection='3d')
-        ax.canvas = canvas # must be set after the add_subplot line
+        ax.canvas = canvas  # must be set after the add_subplot line
         ax.mouse_init()
         # 3d plot grid arrangement code adapted from http://stackoverflow.com/questions/29547687/matplotlib-3d-surface-plots-not-showing       
         xi = np.linspace(self.depths.min(), self.depths.max(), 50)
@@ -180,7 +205,7 @@ class ModelSetResult(object):
         ax.set_xlabel("Depth")
         ax.set_ylabel("Velocity")
         ModelSetResult.clearLayout(layout)
-        layout.addWidget(ax.canvas) # need to clear before adding another widget
+        layout.addWidget(ax.canvas)  # need to clear before adding another widget
         ax.canvas.draw()  
         
     def exportPlot(self, whichPlot):
@@ -207,4 +232,17 @@ class ModelSetResult(object):
                 for v in velocities:
                     writer.writerow([v] + [dictResponses[(d, v)] for d in depths])
             self.ui.status("Saved responses for the full depth/velocity grid to to {0}.".format(outFilePath))
+
+class InstantaneousModelSetResult(ModelSetResult):
+
+    def __init__(self, ui, results):
+        self.main_response = 'netRateOfEnergyIntake'  # default response to plot first and use for depth plot default velocity
+        super().__init__(ui, results)
+
+class DailyModelSetResult(ModelSetResult):
+
+    def __init__(self, ui, results):
+        self.main_response = 'dailyNetEnergyIntake'  # default response to plot first and use for depth plot default velocity
+        super().__init__(ui, results)
+
 

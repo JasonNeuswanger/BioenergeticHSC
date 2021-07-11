@@ -13,11 +13,12 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import QDoubleValidator, QIntValidator
 from DriftModelRT.DriftForager import DriftForager
 from DriftModelRT.PreyType import PreyType
-from ModelSetResult import ModelSetResult
+from ModelSetResult import InstantaneousModelSetResult, DailyModelSetResult
 import os
 import csv
 import pickle
 import sys
+import datetime
 from scipy.interpolate import interp1d
 
 def resource_path(relative_path):  ## Function necessary for Pyinstaller to find .ui file during compilation
@@ -47,7 +48,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnBatchMethod1File.clicked.connect(lambda: self.chooseFile('batch method 1'))
         self.btnBatchMethod2File.clicked.connect(lambda: self.chooseFile('batch method 2'))
         self.btnBatchMethod3File.clicked.connect(lambda: self.chooseFile('batch method 3'))
+        self.btnHourlyDetailsFile.clicked.connect(lambda: self.chooseFile('hourly details'))
         self.btnRunModel.clicked.connect(lambda: self.runModel(shouldShowPlots=True, shouldConfigureForager=True, gotPreyTypesFromBatchFile=False))
+        self.btnRunDailyModel.clicked.connect(lambda: self.runDailyModel(shouldShowPlots=True, shouldConfigureForager=True, gotPreyTypesFromBatchFile=False))
         self.btnRunModelOnBatchMethod1.clicked.connect(self.runBatchMethod1)
         self.btnRunModelOnBatchMethod2.clicked.connect(self.runBatchMethod2)
         self.btnRunModelOnBatchMethod3.clicked.connect(self.runBatchMethod3)
@@ -85,6 +88,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.leReactionDistanceMultiplier.setValidator(QDoubleValidator(0.01, 1.0, 2, self.leReactionDistanceMultiplier))
         self.leFocalVelocityScaler.setValidator(QDoubleValidator(0.01, 1.0, 2, self.leFocalVelocityScaler))
         self.leRoughness.setValidator(QDoubleValidator(0, 50, 1, self.leRoughness))
+        self.leMaxHoursToFeed.setValidator(QIntValidator(1, 24, self.leMaxHoursToFeed))
+        self.leNighttimeDetectionProbability.setValidator(QDoubleValidator(0.0, 1.0, 2, self.leNighttimeDetectionProbability))
+        self.leLatitude.setValidator(QDoubleValidator(-90, 90, 6, self.leLatitude))
+        self.leLongitude.setValidator(QDoubleValidator(-180, 180, 6, self.leLongitude))
+        self.leBaselineHourlyPredationRiskInTermsOf90DayHorizon.setValidator(QDoubleValidator(0.0, 1.0, 2, self.leBaselineHourlyPredationRiskInTermsOf90DayHorizon))
+        self.leMaxHourlyRiskInTermsOf90DayHorizon.setValidator(QDoubleValidator(0.0, 1.0, 2, self.leMaxHourlyRiskInTermsOf90DayHorizon))
+        self.leRiskScaleConstant.setValidator(QDoubleValidator(0.0, 1.0, 2, self.leRiskScaleConstant))
         # Tell the response variable picker to check for changes
         self.cbResponseVariableToPlot.currentIndexChanged.connect(self.showPlots)
         # Set up variable to track if there's an active forager configured
@@ -112,6 +122,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.loadFishPreset('18 cm Dolly Varden')
         self.loadGridPreset('Fast Calculation Grid')
         self.cbTurbulenceAdjustment.setCurrentIndex(1)
+        # Now, defaults for the daily settings tab
+        self.leLatitude.setText("48.553453")
+        self.leLongitude.setText("-113.022861")
+        self.deMonthAndDay.setDate(datetime.date(2000, 7, 15))
+        self.leMaxHoursToFeed.setText("24")  # todo change input file back to allowing more hours after testing
+        self.leNighttimeDetectionProbability.setText("0.05")
+        self.cbForagingStrategy.setCurrentIndex(0)
+        self.leBaselineHourlyPredationRiskInTermsOf90DayHorizon.setText("0.3")
+        self.leMaxHourlyRiskInTermsOf90DayHorizon.setText("0.9")
+        self.leRiskScaleConstant.setText("0.6")
+        # todo undo these default files when I'm done testing
+        self.leDriftDensityFile.setText("/Users/Jason/Dropbox/UBC Project/BioenergeticHSC/DriftModelRT/resources/DemoPreyTypesChenaFromDriftPump.csv")
+        self.leHourlyDetailsFile.setText("/Users/Jason/Dropbox/UBC Project/BioenergeticHSC/DriftModelRT/resources/DemoHourlyDetails.csv")
 
     def loadFishPreset(self, whichFish):
         if whichFish == '33 cm Arctic Grayling':
@@ -232,7 +255,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         elif whichFile == 'batch method 3':
             filePath = QtWidgets.QFileDialog.getOpenFileName(self, "Choose the CSV file containing batch specification for method 3.", os.path.expanduser("~"), "CSV Files (*.csv)")[0]
             if filePath != "": self.leBatchMethod3File.setText(filePath)
-        if filePath != "": self.status("Set {0} file to {1}.".format(whichFile, filePath))
+        elif whichFile == 'hourly details':
+            filePath = QtWidgets.QFileDialog.getOpenFileName(self, "Choose the CSV file containing the houry-by-hour temporal variation details.", os.path.expanduser("~"), "CSV Files (*.csv)")[0]
+            if filePath != "": self.leHourlyDetailsFile.setText(filePath)
+        if filePath != "":
+            self.status("Set {0} file to {1}.".format(whichFile, filePath))
 
     def configureForager(self):
         preyTypes = PreyType.loadPreyTypes(self.leDriftDensityFile.text(), self) if os.path.exists(self.leDriftDensityFile.text()) else None
@@ -274,49 +301,144 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         results = []
         self.pbModelRunProgress.setMaximum(len(dv) - 1)
         self.pbModelRunProgress.setValue(0)
-        maxNetRateOfEnergyIntake = -100000  # placeholder to be replaced by highest NREI
         for i in range(len(dv)):
             self.pbModelRunProgress.setValue(i)
             self.app.processEvents()  # Forces the progress bar and status window to update with each iteration rather than waiting until the end of the loop.
             depth, velocity = dv[i]
             result = self.currentForager.runForagingModel(depth, velocity, self.ckbOptimizeDiet.isChecked(), self.modelGridSize)
-            maxNetRateOfEnergyIntake = result.netRateOfEnergyIntake if result.netRateOfEnergyIntake > maxNetRateOfEnergyIntake else maxNetRateOfEnergyIntake
             results.append(result)
             self.status("Calculated NREI = {0:.4f} j/s at depth = {1:.2f} cm and velocity = {2:.2f} cm/s.".format(result.netRateOfEnergyIntake, depth, velocity))
-        for result in results: result.standardizeSuitability(maxNetRateOfEnergyIntake)  # Calculate the standardized suitability for each result after the overall maximum is known
+        maxNetRateOfEnergyIntake = max([result.netRateOfEnergyIntake for result in results])
+        for result in results:
+            result.standardizeSuitability(maxNetRateOfEnergyIntake)  # Calculate the standardized suitability for each result after the overall maximum is known
         self.status("Completed NREI calculations for {0} depth/velocity combinations with maximun NREI = {1:.2f} J/s.".format(len(dv), maxNetRateOfEnergyIntake))
         self.pbModelRunProgress.setValue(0)  # Reset progress bar
         if shouldShowPlots:
             self.hsDepthForVelocityPlot.setMaximum(maxDepth / self.depthInterval)
             self.hsVelocityForDepthPlot.setMaximum(maxVelocity / self.velocityInterval)
-            self.currentResult = ModelSetResult(self, results)
+            self.currentResult = InstantaneousModelSetResult(self, results)
             self.showPlots()
             self.swResultsControls.setCurrentIndex(1)  # Make the sliders/buttons to control the 'Results' plots visible by switching the stacked widget to the non-blank page
-            self.mainTabWidget.setCurrentIndex(1)  # Switch user to 'Results' tab
+            self.mainTabWidget.setCurrentIndex(2)  # Switch user to 'Results' tab
         else:
-            self.currentResult = ModelSetResult(self, results)
+            self.currentResult = InstantaneousModelSetResult(self, results)
+
+    def runDailyModel(self, shouldShowPlots=True, shouldConfigureForager=True, gotPreyTypesFromBatchFile=False):
+        if not os.path.exists(self.leDriftDensityFile.text()) and not gotPreyTypesFromBatchFile:
+            self.alertBox("Cannot run the model without prey types specified in either the inputs tab or batch input files.")
+            return
+        self.status("Running model...")
+        if shouldConfigureForager: self.configureForager()
+        self.depthInterval = int(self.leIntervalDepth.text())
+        self.velocityInterval = int(self.leIntervalVelocity.text())
+        maxDepth = int(self.leMaxDepth.text())
+        maxVelocity = int(self.leMaxWaterVelocity.text())
+        depths = np.arange(self.depthInterval, maxDepth + 0.0001, self.depthInterval)  # numpy.arange excludes the max value given, so we add 0.0001 to include maxDepth, etc.
+        velocities = np.arange(self.velocityInterval, maxVelocity + 0.0001, self.velocityInterval)
+        dg, vg = np.meshgrid(depths, velocities)
+        dv = np.array([dg.flatten(), vg.flatten()]).T
+        self.status("Calculating NREI for {0} depth/velocity combinations.".format(len(dv)))
+        results = []
+        self.pbDailyRunProgressOverall.setMaximum(len(dv) - 1)
+        self.pbDailyRunProgressOverall.setValue(0)
+        for i in range(len(dv)):
+            self.pbDailyRunProgressOverall.setValue(i)
+            self.app.processEvents()  # Forces the progress bar and status window to update with each iteration rather than waiting until the end of the loop.
+            depth, velocity = dv[i]   # todo repeat the processEvents line above for batch processing in general and add progress bars for those
+            result = self.currentForager.runDailyModel(depth, velocity, self.ckbOptimizeDiet.isChecked(), self.modelGridSize, None)  # todo add transect interpolations here where useful
+            results.append(result)
+            self.status("Calculated DNEI = {0:.4f} J at depth = {1:.2f} cm and velocity = {2:.2f} cm/s, with consumption {3:.2f} of maximum ration.".format(result.dailyNetEnergyIntake, depth, velocity, result.dailySpecificConsumptionProportional))
+        maxDailyNetEnergyIntake = max([result.dailyNetEnergyIntake for result in results])
+        minDailyRiskBalancingMetric = min([result.dailyRiskBalancingMetric for result in results])
+        maxDailyRiskBalancingMetric = max([result.dailyRiskBalancingMetric for result in results])
+        maxDailyConsumptionProportional = max([result.dailySpecificConsumptionProportional for result in results])
+        for result in results:
+            result.standardizeSuitability(maxDailyNetEnergyIntake, minDailyRiskBalancingMetric, maxDailyRiskBalancingMetric, self.cbForagingStrategy.currentIndex())  # Calculate the standardized suitability for each result after the overall maximum is known
+        self.status("Completed NREI calculations for {0} depth/velocity pairs with max DNEI = {1:.2f} J and consumption {2:.2f} of maximum ration.".format(len(dv), maxDailyNetEnergyIntake, maxDailyConsumptionProportional)) # todo add proportion of Cmax to display
+        self.pbDailyRunProgressOverall.setValue(0)  # Reset progress bar
+        if shouldShowPlots:
+            self.hsDepthForVelocityPlot.setMaximum(maxDepth / self.depthInterval)
+            self.hsVelocityForDepthPlot.setMaximum(maxVelocity / self.velocityInterval)
+            self.currentResult = DailyModelSetResult(self, results)
+            self.showPlots()
+            self.swResultsControls.setCurrentIndex(1)  # Make the sliders/buttons to control the 'Results' plots visible by switching the stacked widget to the non-blank page
+            self.mainTabWidget.setCurrentIndex(2)  # Switch user to 'Results' tab
+        else:
+            self.currentResult = DailyModelSetResult(self, results)
 
     def showPlots(self):
-        responseDict = {0: 'netRateOfEnergyIntake',
-                        1: 'standardizedSuitability',
-                        2: 'grossRateOfEnergyIntake',
-                        3: 'captureManeuverCostRate',
-                        4: 'focalSwimmingCostRate',
-                        5: 'totalEnergyCostRate',
-                        6: 'meanReactionDistance',
-                        7: 'captureSuccess',
-                        8: 'proportionOfTimeSpentHandling',
-                        9: 'ingestionRate',
-                        10: 'encounterRate',
-                        11: 'meanPreyEnergyValue',
-                        12: 'numPreyTypes',
-                        13: 'proportionAssimilated'}
-        if self.currentResult:
-            self.currentResult.setResponse(responseDict[self.cbResponseVariableToPlot.currentIndex()])
-            self.currentResult.plotSuitabilityCurve('depth', self.hsVelocityForDepthPlot.value() * self.velocityInterval, self.mplDepthLayout)
-            self.currentResult.plotSuitabilityCurve('velocity', self.hsDepthForVelocityPlot.value() * self.depthInterval, self.mplVelocityLayout)
-            self.currentResult.plotResponseSurface(self.mplDepthAndVelocityLayout)
-            self.currentResult.showDefaultCurves()
+        if not self.currentResult:
+            return
+        if isinstance(self.currentResult, InstantaneousModelSetResult):
+            responseDict = {0: 'netRateOfEnergyIntake',
+                            1: 'standardizedSuitability',
+                            2: 'grossRateOfEnergyIntake',
+                            3: 'captureManeuverCostRate',
+                            4: 'focalSwimmingCostRate',
+                            5: 'totalEnergyCostRate',
+                            6: 'meanReactionDistance',
+                            7: 'captureSuccess',
+                            8: 'proportionOfTimeSpentHandling',
+                            9: 'ingestionRate',
+                            10: 'encounterRate',
+                            11: 'meanPreyEnergyValue',
+                            12: 'numPreyTypes',
+                            13: 'proportionAssimilated'}
+        elif isinstance(self.currentResult, DailyModelSetResult):
+            responseDict = {0: 'dailyNetEnergyIntake',
+                            1: 'dailyRiskBalancingMetric',
+                            2: 'standardizedSuitability',
+                            3: 'dailyRisk',
+                            4: 'dailyRiskOn90DayHorizon',
+                            5: 'dailyGrossEnergyIntake',
+                            6: 'dailyCost',
+                            7: 'dailyFocalSwimmingCost',
+                            8: 'dailyCaptureManeuverCost',
+                            9: 'dailyHoursForaging',
+                            10: 'dailySpecificConsumption',
+                            11: 'dailySpecificConsumptionProportional'
+                            }
+        else:
+            return # shouldn't ever reach this line, but just in case
+        self.currentResult.setResponse(responseDict[self.cbResponseVariableToPlot.currentIndex()])
+        self.currentResult.plotSuitabilityCurve('depth', self.hsVelocityForDepthPlot.value() * self.velocityInterval, self.mplDepthLayout)
+        self.currentResult.plotSuitabilityCurve('velocity', self.hsDepthForVelocityPlot.value() * self.depthInterval, self.mplVelocityLayout)
+        self.currentResult.plotResponseSurface(self.mplDepthAndVelocityLayout)
+        self.currentResult.showDefaultCurves()
+
+    def changePlotOptions(self, whichOptions):
+        """ Pass whichOptions = 0 for instantaneous model runs, 1 for daily model runs"""
+        self.cbResponseVariableToPlot.clear()
+        if whichOptions == 0:
+            self.cbResponseVariableToPlot.addItems(('Net rate of energy intake',
+                                                   'Standardized habitat suitability',
+                                                   'Gross rate of energy intake',
+                                                   'Energy cost of maneuvering',
+                                                   'Energy cost of focal swimming',
+                                                   'Total energy costs',
+                                                   'Mean reaction distance',
+                                                   'Prey capture success proportion',
+                                                   'Proportion of time handling prey',
+                                                   'Prey ingestion rate',
+                                                   'Prey encounter rate',
+                                                   'Mean prey energy value',
+                                                   'Number of prey types in diet',
+                                                   'Proportion of energy assimilated'
+                                                    ))
+        else:
+            self.cbResponseVariableToPlot.addItems(('Daily net energy intake',
+                                                   'Daily risk-balancing metric',
+                                                   'Standardized habitat suitability',
+                                                   'Predation risk per day',
+                                                   'Predation risk per 90 days',
+                                                   'Daily gross energy intake',
+                                                   'Daily total swimming cost',
+                                                   'Daily focal swimming cost',
+                                                   'Daily capture maneuver cost',
+                                                   'Daily hours foraging',
+                                                   'Daily specific consumption',
+                                                   'Proportion of max consumption'
+                                                    ))
 
     def runBatchMethod1(self):
         inFilePath = self.leBatchMethod1File.text()

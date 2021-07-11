@@ -30,6 +30,10 @@ class SingleModelResult(object):
         self.proportionAssimilated = proportionAssimilated
         for preyType in self.preyTypes: preyType.ingestionRate = preyType.ingestionCount / totalTime
         self.pointLabel = None  # for temporary storage of point label when processing from a batch file
+        # The following are placeholders for numbers set externally when processing Daily NEI and risk
+        self.hour = None
+        self.hourlyRisk = None
+        self.actuallyForaged = None
         
     def standardizeSuitability(self, maxNetRateOfEnergyIntake):
         ''' This standardizes habitat suitability to a maximum of 1. It's set in a separate function because the standardized suitability for each model result
@@ -64,6 +68,9 @@ class EmptySingleModelResult:
         for preyType in self.preyTypes: preyType.ingestionRate = 0
         self.pointLabel = None  # for temporary storage of point label when processing from a batch file
         self.standardizedSuitability = 0
+        # Again, placeholders for hourly analysis below
+        self.hourlyRisk = None
+        self.actuallyForaged = None
 
     def standardizeSuitability(self, dummyNREI):
         """ Exists so results from this class can be treated the same as for normal results in the rest of the code."""
